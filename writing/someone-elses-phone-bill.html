@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Someone else's phone bill — Nathan Cartmell</title>
+<meta name="description" content="Toll fraud costs real money by the minute. The useful controls turned out to be graduated ones — risk scores that trigger verification rather than walls that block.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/someone-elses-phone-bill.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Someone else's phone bill">
+<meta property="og:description" content="Toll fraud costs money by the minute. Graduated controls beat walls.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/someone-elses-phone-bill.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Someone else's phone bill</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Most fraud in software is about getting something for nothing — a free subscription, a
+      refund that should not have happened, a card that is not yours. Telecoms fraud is
+      different in a way that changes how you defend against it: <strong>the loss accrues
+      continuously, in real time, and somebody is genuinely owed the money.</strong>
+    </p>
+
+    <p>
+      The classic shape is toll fraud. Someone gets access to an account — a weak SIP
+      password, a handset exposed to the internet, credentials in a breach — and starts
+      dialling premium-rate international destinations they control. Every connected minute
+      earns them a share of the termination fee. A compromised account left running over a
+      long weekend is a five-figure problem, and the carriers you buy from will invoice you
+      for those minutes regardless of how the calls originated.
+    </p>
+
+    <p>
+      That last point is what makes it urgent rather than annoying. You cannot resolve it
+      afterwards by declining to pay.
+    </p>
+
+    <h2>Two very different fronts</h2>
+
+    <p>
+      The work splits cleanly into two problems that feel related and are not.
+    </p>
+
+    <p>
+      <strong>Signup fraud</strong> is about who gets an account. It is adversarial in the
+      normal way — automated registrations, throwaway identities, cards that will chargeback
+      — and the defences are the usual ones.
+    </p>
+
+    <p>
+      <strong>Usage fraud</strong> is about what an account does once it exists, and it is
+      frequently not the customer's fault. A legitimate business with a badly configured
+      handset is a victim, not an attacker, and the correct response is to protect them from
+      a bill rather than to treat them as hostile.
+    </p>
+
+    <p>
+      Getting that distinction right matters because the instinct — build a wall, keep bad
+      people out — only addresses the first, and the second is where the money is.
+    </p>
+
+    <h2>Graduated response beats a binary gate</h2>
+
+    <p>
+      The instinct with any risk signal is to pick a threshold and refuse anything below it.
+      I think that is usually the wrong shape, and the reasoning generalises well beyond
+      telecoms.
+    </p>
+
+    <p>
+      A hard block on a signup flow has an asymmetric cost profile. Someone determined will
+      try again with a different browser in four minutes — the block costs them almost
+      nothing. An honest customer on an unusual network, or with a privacy extension, or
+      simply having a bad day, hits a wall and goes elsewhere. You never hear from that
+      second group, which is precisely why the control looks like it is working.
+    </p>
+
+    <p>
+      A graduated response inverts the asymmetry. Instead of refusing, you attach additional
+      verification and let the person continue. The honest customer is mildly inconvenienced
+      and completes. The other kind meets a step that costs something real and does not
+      scale for them — which is the entire point of friction, applied to the population it
+      should apply to.
+    </p>
+
+    <p>
+      The engineering consequence is that a risk signal has to be plumbed as an
+      <em>input to a workflow</em> rather than a boolean at a gate. It needs to be stored,
+      to survive the session, to be visible to staff reviewing an account later, and to
+      handle being absent — when a scoring service does not answer, the result must be a
+      defined state rather than a crash or an accidental refusal.
+    </p>
+
+    <h2>Act automatically, or do not bother</h2>
+
+    <p>
+      On the usage side, the thing that separates a control from a gesture is whether it
+      acts on its own.
+    </p>
+
+    <p>
+      An alert is not a control. By the time somebody reads a notification about unusual
+      activity, reasons about whether it is genuine, finds the right person and acts, hours
+      have passed. Automated abuse does not observe office hours, and when the loss is
+      linear in time those hours are the entire cost.
+    </p>
+
+    <p>
+      Nobody enjoys building something that will occasionally interrupt a legitimate
+      customer. It is still correct, because the distributions are not comparable: a rare,
+      recoverable interruption for a real business against an unbounded loss on a
+      compromised one. Alert as well, certainly — but the alert should tell you what already
+      happened, not ask you to decide.
+    </p>
+
+    <p>
+      Thresholds also cannot be global. Different partners sell into different markets with
+      genuinely different legitimate patterns, so a single set of limits is either too loose
+      for one or too tight for another.
+    </p>
+
+    <h2>Never the emergency path</h2>
+
+    <p>
+      Every one of these controls carves out emergency calls. Outbound is disabled; 999 is
+      not. Rate limiting applies; not to emergency calls.
+    </p>
+
+    <p>
+      I have <a href="the-address-that-has-to-be-right.html">written about this before</a>
+      and it bears repeating here because it is the clearest example of why: the scenario
+      where the carve-out matters is someone dialling for an ambulance from an account that
+      has been suspended for non-payment or locked down for suspected fraud. The protective
+      control and the emergency path must never be the same code path.
+    </p>
+
+    <h2>Blocking without explaining creates its own work</h2>
+
+    <p>
+      Two things I would insist on from the start next time.
+    </p>
+
+    <p>
+      <strong>Every block needs a visible reason.</strong> When a call is refused because of
+      an outbound restriction, the person on the support desk needs to see that, in those
+      words, without reading logs. Otherwise your fraud controls generate a steady stream of
+      "customer says calls are failing" tickets that take an hour each to diagnose — and
+      that cost is paid by your colleagues, quietly, forever.
+    </p>
+
+    <p>
+      <strong>Blocking controls need a rollback path you have tested.</strong> Anything
+      that denies service automatically will eventually deny it wrongly, and at scale. The
+      question is never whether that happens, only whether you can undo it in minutes or
+      hours — and that is a property you have to build deliberately, before you need it.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Prefer escalation to refusal.</strong> A risk signal is more valuable as a
+      trigger for verification than as a gate. You keep the customers you would have turned
+      away and impose real cost on the ones you would not.
+    </p>
+
+    <p>
+      <strong>Automated controls beat alerting when losses are continuous.</strong> If the
+      damage accrues per minute, a human in the loop is not a safeguard, it is a delay.
+      Alert as well — but act first.
+    </p>
+
+    <p>
+      <strong>Victims look like attackers.</strong> In usage fraud the account behaving badly
+      usually belongs to somebody who has done nothing wrong. Designing the response around
+      protecting them, rather than punishing them, produces different and better decisions.
+    </p>
+
+    <p>
+      <strong>Every denial is a support conversation.</strong> Budget for the explanation
+      surface at the same time as the control, or your colleagues will absorb the difference.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-address-that-has-to-be-right.html">The address that has to be right</a> &mdash; two models for a 999 routing address</li>
+        <li><a href="porting-a-number.html">Porting a number</a> &mdash; a regulated handover between competitors</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

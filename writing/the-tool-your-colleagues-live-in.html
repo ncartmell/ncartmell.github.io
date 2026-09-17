@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The tool your colleagues live in — Nathan Cartmell</title>
+<meta name="description" content="Maintaining the internal portal a company runs on. Your users sit near you, nothing is ever prioritised until it breaks, and it is the union of every other system you own.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The tool your colleagues live in">
+<meta property="og:description" content="Maintaining the internal portal a company runs on, where your users sit near you and nothing is prioritised until it breaks.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The tool your colleagues live in</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      The second-largest codebase I work in is not a product. It is the internal portal —
+      the thing support, sales and provisioning staff have open all day, where customers get
+      looked up, numbers get assigned, orders get placed, ports get chased and notes get
+      written.
+    </p>
+
+    <p>
+      It has no marketing site, no onboarding flow and no users outside the building. It is
+      also, by a wide margin, the application whose failure is noticed fastest.
+    </p>
+
+    <h2>It is the union of everything else</h2>
+
+    <p>
+      A customer-facing product has a scope. An internal portal has whatever was left over.
+    </p>
+
+    <p>
+      Ours reaches into number management, porting, hardware and stock, provisioning,
+      billing and renewals, partner administration, ticketing, the knowledge base, customer
+      notes and reporting. Not because anyone designed that, but because each of those
+      needed an interface for staff and there was already a place staff logged into.
+    </p>
+
+    <p>
+      The consequence is that it touches nearly every other system the company runs, and
+      changes anywhere ripple into it. When a platform migrates, this is one of the places
+      that has to migrate with it. When an integration changes its authentication, this is
+      where somebody notices. It is a permanent downstream consumer of every decision made
+      elsewhere.
+    </p>
+
+    <p>
+      That makes it a useful place to work if you want to understand a business, and an
+      awkward one to estimate, because "add a field" frequently means touching three
+      systems.
+    </p>
+
+    <h2>The users sit twenty feet away</h2>
+
+    <p>
+      This is the defining difference and it cuts both ways.
+    </p>
+
+    <p>
+      The feedback loop is immediate and unfiltered. Nobody writes a support ticket about
+      the internal portal; they walk over, or they message you, and they tell you exactly
+      what is wrong in the words they would use to a colleague. There is no product manager
+      translating, no survey, no guessing at intent. If a page is slow you will know within
+      the hour, from the person it is slow for.
+    </p>
+
+    <p>
+      That is a genuine privilege. Most engineers never get to watch somebody use the thing
+      they built, and half an hour sitting with a support agent working through their actual
+      day will teach you more about what to build than a quarter of planning.
+    </p>
+
+    <p>
+      The cost is that the same channel is how work arrives. Requests come as taps on the
+      shoulder, and every one is small, reasonable and from somebody you like. Without some
+      discipline about writing them down, the portal becomes whoever asked most recently —
+      which is a real risk when the person asking is standing there and the queue is
+      invisible.
+    </p>
+
+    <h2>Nobody prioritises it until it breaks</h2>
+
+    <p>
+      Internal tools lose every prioritisation conversation they are in. There is always a
+      customer-facing thing with revenue attached, and "the operations portal is a bit
+      awkward" does not compete.
+    </p>
+
+    <p>
+      So it accumulates. Pages that were quick when a table was small. Flows that grew an
+      extra step each time a process changed. Reports that answer the question somebody had
+      three years ago. None of it is bad enough to schedule, all of it costs a few seconds
+      per use, and it is used hundreds of times a day by dozens of people.
+    </p>
+
+    <p>
+      The arithmetic on that is genuinely favourable and almost never done. A change saving
+      ten seconds on a task performed two hundred times a day is most of a working week per
+      month. It is very hard to get that funded as a project and very easy to do quietly
+      alongside something else, which is how most of it actually gets done.
+    </p>
+
+    <h2>The boring features are the important ones</h2>
+
+    <p>
+      If I look at what people actually rely on, it is not the clever parts.
+    </p>
+
+    <p>
+      <strong>Search.</strong> The single most-used thing in the portal. Someone is on the
+      phone with a customer right now and needs to find them by a partial name, a number, a
+      reference, or a half-remembered fragment of an email address. Search being fast and
+      forgiving is worth more than any individual feature.
+    </p>
+
+    <p>
+      <strong>Notes.</strong> Free text attached to a customer, written by colleagues, read
+      by whoever picks up the next call. It is the least structured data in the system and
+      the most load-bearing — the institutional memory of every conversation nobody could
+      model as a field.
+    </p>
+
+    <p>
+      <strong>Recents and pinning.</strong> Staff work on the same handful of customers for
+      days. Remembering that, and keeping it correct when a customer is renamed, removes a
+      search from every task.
+    </p>
+
+    <p>
+      <strong>Bulk actions.</strong> The difference between an operation being feasible and
+      not. Moving one site is a task; moving forty is a day nobody will volunteer for unless
+      you can select all of them at once — including across pages, which is the detail
+      everyone forgets.
+    </p>
+
+    <h2>Internal does not mean unguarded</h2>
+
+    <p>
+      One trap worth naming. Because everyone using it is an employee, there is a temptation
+      to treat the portal as a trusted environment: show everything, allow everything,
+      assume good faith.
+    </p>
+
+    <p>
+      That is wrong for reasons that have nothing to do with distrust. Staff have different
+      jobs, and showing someone controls they have no business using is how mistakes happen
+      — not malice, just a tired person clicking the wrong thing on a Friday. The portal is
+      also where the most sensitive customer data in the company is aggregated and made
+      searchable, which is exactly the surface you would not want to be casual about.
+      Granular permissions belong here more than almost anywhere else, and I have
+      <a href="hiding-a-button-is-not-a-permission.html">written separately</a> about
+      retrofitting them.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Proximity to users is the whole advantage — use it.</strong> Go and watch
+      somebody do their job. You will find three improvements in an afternoon that no amount
+      of ticket triage would have surfaced, because the things that annoy people most are
+      the ones they have stopped mentioning.
+    </p>
+
+    <p>
+      <strong>Write the shoulder-taps down.</strong> An internal tool with no backlog is
+      steered by whoever is nearest. Capturing requests is not bureaucracy here, it is the
+      only way the quiet teams get anything.
+    </p>
+
+    <p>
+      <strong>Do the arithmetic on small frictions.</strong> Seconds multiplied by daily
+      repetitions by number of staff is a real number, and it is usually much larger than
+      the thing it is losing to. It is also the easiest argument you will ever make, once
+      you bother to make it.
+    </p>
+
+    <p>
+      <strong>Search and notes before features.</strong> In any tool where people work
+      through a queue of entities, finding the right one and reading what happened last time
+      are the foundation. Everything else is built on top of those two working well.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="one-person-several-accounts.html">One person, several accounts</a> &mdash; SSO when identity isn't one-to-one</li>
+        <li><a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a> &mdash; retrofitting granular access control</li>
+        <li><a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a> &mdash; building call reporting end to end</li>
+        <li><a href="a-catalogue-is-a-query.html">A catalogue is a query</a> &mdash; selling hardware and addons through partners</li>
+        <li><a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a> &mdash; replacing the helpdesk support lives in</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Presence is not a boolean — Nathan Cartmell</title>
+<meta name="description" content="The little light showing whether a colleague is free looks like one bit. It is a composite of registration, call state, do-not-disturb and queue availability, delivered to every client.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Presence is not a boolean">
+<meta property="og:description" content="The little light showing whether a colleague is free is a composite of four different things, and every client wants it for everyone.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Presence is not a boolean</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Every business phone has a row of little lights next to colleagues' names. Green
+      means free, red means on a call, and you glance at them before transferring someone.
+      In telephony they are busy lamp fields, and they look like the simplest feature in
+      the product.
+    </p>
+
+    <p>
+      They are one of the more awkward things in it, because "is Sarah available" is not
+      one fact and the lights are wanted by everyone, about everyone, continuously.
+    </p>
+
+    <h2>What the light is actually made of</h2>
+
+    <p>
+      At minimum the state has to fold together several independent things.
+    </p>
+
+    <p>
+      <strong>Registration.</strong> Is there a device logged in as this person at all? A
+      handset that is unplugged is not busy and it is not free — it is uncontactable, which
+      is a different fact with different consequences. Showing "available" for somebody
+      whose phone is in a drawer is worse than showing nothing, because a colleague will
+      transfer a customer into silence. That deserves its own indicator, not a fallback to
+      one of the existing colours.
+    </p>
+
+    <p>
+      <strong>Call state.</strong> The obvious one: on a call, ringing, idle.
+    </p>
+
+    <p>
+      <strong>Do not disturb.</strong> Someone can be registered and idle and still not want
+      calls. And when DND is global rather than per-device, toggling it has to update the
+      light for a person rather than a phone — which means a change in one place
+      invalidating derived state somewhere else.
+    </p>
+
+    <p>
+      <strong>Queue availability.</strong> In a contact centre, whether someone is taking
+      queue calls is separate again from all of the above. They can be idle, registered,
+      not in DND, and still not available to the queue.
+    </p>
+
+    <p>
+      Four inputs, one dot. Every time somebody asks for a new distinction — "can we show
+      whether they are in a meeting?" — it is another input, and the mapping from inputs to
+      colours has to stay something a human can hold in their head while looking at a
+      screen of twenty of them.
+    </p>
+
+    <h2>It is not just people</h2>
+
+    <p>
+      Presence gets asked for on things that are not individuals. A hunt group, a
+      department, a shared line. Those need a sensible aggregate — a department is not
+      "on a call", it has some proportion of its members on calls — and the aggregation
+      rule is a product decision dressed as a technical one.
+    </p>
+
+    <p>
+      The same is true of yourself. Showing your own presence back to you sounds redundant
+      until you realise it is how somebody notices their own phone has silently
+      deregistered, or that they left DND on after lunch.
+    </p>
+
+    <h2>The fan-out</h2>
+
+    <p>
+      Here is where it stops being a display problem. Every client subscribes to the
+      presence of everyone it shows. A fifty-person office with phones and mobile apps
+      means every client watching every colleague, and every state change fanning out to
+      all of them.
+    </p>
+
+    <p>
+      Subscriptions also expire and renew on a period, which is the mechanism that keeps
+      them from leaking — and the mechanism that produces a synchronised renewal storm if
+      every client is handed the same interval. That is a
+      <a href="everyone-checks-in-at-once.html">separate story</a>, but it is the same
+      subsystem.
+    </p>
+
+    <p>
+      The load shape is unusual: individually trivial updates, enormous multiplier, and
+      correctness that is judged visually by people who will absolutely notice a light that
+      is wrong. One useful change we made was simply moving app presence lookups off the
+      media server — the component handling actual calls should not also be answering
+      "is Sarah free" for every client in the estate, because those two jobs have very
+      different failure tolerances.
+    </p>
+
+    <h2>Initial load is the hard part</h2>
+
+    <p>
+      Steady state is fine. You subscribe, updates arrive, you repaint a dot.
+    </p>
+
+    <p>
+      The bug that took the longest was presence being wrong on first load. It is the
+      classic shape of any subscription system: you subscribe to changes, but nobody
+      changes anything, so you sit there displaying whatever you assumed until the first
+      person picks up a phone. Everything is correct from then on, and wrong at the moment
+      the user first looks.
+    </p>
+
+    <p>
+      Getting that right means a deliberate snapshot-then-subscribe sequence with an
+      ordering guarantee — and handling the case where a change arrives between the two,
+      which you must not lose and must not apply out of order. It is a small amount of code
+      and a lot of thinking, and it is invisible when correct.
+    </p>
+
+    <h2>The unglamorous detail I liked</h2>
+
+    <p>
+      At one point we swapped the indicator icons from PNGs to PDFs, because vector assets
+      scale cleanly across the range of screen sizes and densities the app runs on.
+    </p>
+
+    <p>
+      I mention it because it is a good example of where the effort actually goes on a
+      feature like this. A meaningful share of the work was not the state machine at all —
+      it was the indicator being the wrong colour in a context menu because the view did
+      not update, or not matching the desktop client, or looking soft on one device.
+      Presence is judged entirely on whether the dot looks right, and "looks right" has a
+      long tail.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>A single indicator usually hides a composite.</strong> When a product person
+      says "show whether they are available", the first job is enumerating what availability
+      is made of, because that list is the actual specification and it is longer than
+      anyone expects.
+    </p>
+
+    <p>
+      <strong>Absent is not a value of present.</strong> Unregistered, unknown and
+      not-yet-loaded are distinct from available and busy. Collapsing them into an existing
+      state produces confidently wrong displays, which cost more than an honest "I don't
+      know".
+    </p>
+
+    <p>
+      <strong>Subscription systems are wrong at the start, not in the middle.</strong> If
+      you only handle deltas, your initial state is whatever you guessed. Snapshot first,
+      then subscribe, and be careful about the seam.
+    </p>
+
+    <p>
+      <strong>Separate the components whose failure modes differ.</strong> Presence being
+      briefly stale is a cosmetic problem. Calls failing is not. Those two things should not
+      share a component whose load is dominated by the cosmetic one.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-socket-is-not-the-call.html">The socket is not the call</a> &mdash; when the transport dies but the OS disagrees</li>
+        <li><a href="the-rewrite-that-was-never-a-project.html">The rewrite that was never a project</a> &mdash; a framework migration nobody scheduled</li>
+        <li><a href="the-store-is-part-of-the-system.html">The store is part of the system</a> &mdash; shipping branded apps through two storefronts</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

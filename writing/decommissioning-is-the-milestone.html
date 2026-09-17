@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decommissioning is the milestone — Nathan Cartmell</title>
+<meta name="description" content="Replacing the helpdesk your support team works in, without them stopping. The migration is the easy half; turning the old one off is the part that counts.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Decommissioning is the milestone">
+<meta property="og:description" content="Replacing the helpdesk your support team works in, without them stopping.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Decommissioning is the milestone</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      We replaced the helpdesk our support team works in. Not a background service, not a
+      batch job — the application several dozen people have open all day, every day, and
+      through which customers reach us.
+    </p>
+
+    <p>
+      The interesting constraint is that support cannot pause. There is no maintenance
+      window for "customers stop having problems for a weekend". Whatever you do has to
+      happen around people who are mid-conversation with somebody annoyed.
+    </p>
+
+    <h2>Your platform is a helpdesk user too</h2>
+
+    <p>
+      The obvious half of a helpdesk migration is the helpdesk: move the tickets, train the
+      agents, redirect the inbound email. That part is largely somebody else's job and the
+      vendor has tooling for it.
+    </p>
+
+    <p>
+      The half that lands on engineering is that your own systems are prolific ticket
+      creators. Ours raise tickets when a customer migration needs checking, when an
+      identity verification completes, when an automated process needs a human, when
+      something fails in a way that requires follow-up. Every one of those paths is an
+      integration with the old helpdesk, and every one has to be rewritten.
+    </p>
+
+    <p>
+      So the work is not "move to the new tool". It is "find every place in a decade of
+      code that creates, updates or references a ticket, and re-express it against a
+      different API with different concepts" — while the old paths keep working, because
+      support is using them today.
+    </p>
+
+    <h2>Tickets are created by somebody</h2>
+
+    <p>
+      The detail that consumed the most time was identity, and it is the one I would warn
+      anyone about.
+    </p>
+
+    <p>
+      When a system raises a ticket it has to raise it <em>as</em> someone. That submitter
+      determines who gets replies, what the customer sees as the sender, which team it
+      routes to, and whether it looks like a request from a customer or a note from a
+      colleague. Get it wrong and a customer receives an email apparently from an automated
+      process, or an internal note becomes a customer-visible reply.
+    </p>
+
+    <p>
+      That means maintaining a mapping between your users and their agents — and letting
+      people set their own identifier, with administrators able to set it for others,
+      because nobody is going to do it for fifty staff by hand. It is unglamorous
+      user-management work sitting squarely in the critical path of a migration that looks,
+      from the outside, like a procurement decision.
+    </p>
+
+    <h2>Small vocabulary differences cost real time</h2>
+
+    <p>
+      Two systems that both have tickets do not have the same tickets.
+    </p>
+
+    <p>
+      One example I like: tickets we created had to land as <em>open</em> rather than
+      <em>new</em>. That is a one-word difference and it matters, because the two states
+      mean different things in the team's workflow — new is unclaimed and waiting for
+      triage, open is live work. Creating everything as new quietly dumped automated
+      tickets into the triage queue, which is exactly where they should not be.
+    </p>
+
+    <p>
+      Similarly: forms determine which fields a ticket carries, tags drive automation and
+      reporting, groups determine routing. None of that maps across from the old system,
+      all of it has to be decided rather than translated, and the people who know the right
+      answers are the support team, not you.
+    </p>
+
+    <h2>Several brands, one platform</h2>
+
+    <p>
+      A white-label platform makes this harder in a specific way: there is not one helpdesk
+      relationship, there are several, and a ticket has to be raised into the right one with
+      the right branding and the right domain. Configuration that would be a constant in a
+      single-brand product becomes a per-brand lookup in every integration point.
+    </p>
+
+    <p>
+      This is the recurring tax of white-labelling. Nothing about it is conceptually hard;
+      it just means every "put the value in config" decision is instead "put the value in
+      config, per brand, with a sensible default and a way to see which brands have been
+      set up".
+    </p>
+
+    <h2>Removing the old one is the actual goal</h2>
+
+    <p>
+      The change I would point at as the milestone is not the one that added the new
+      integration. It is the one that removed the old system completely — and, in the same
+      change, added the canned-response support that had been the last thing keeping it
+      alive.
+    </p>
+
+    <p>
+      That pairing is the whole lesson. There is always a final feature gap that stops you
+      finishing, and it is usually small and unglamorous — here, the stock replies agents
+      use fifty times a day. It is tempting to leave both systems running and come back to
+      it. Two systems running is the expensive state: double integration surface, tickets
+      in two places, and an ambiguity about where the truth lives that leaks into every
+      conversation.
+    </p>
+
+    <p>
+      Closing the gap is what lets you delete, and deleting is what makes the migration
+      real. Until then you have added a system rather than replaced one.
+    </p>
+
+    <h2>The long tail is longer than you think</h2>
+
+    <p>
+      The bulk of the work happened over a few months. The commits did not stop there.
+    </p>
+
+    <p>
+      Over the following year and a half there were ticket subject fixes, tag adjustments,
+      submitter corrections, routing changes, reminder wiring, and eventually a change to
+      how we authenticate against the vendor's API — because they moved to a different
+      scheme and the deadline was theirs, not ours.
+    </p>
+
+    <p>
+      That last one is worth internalising. Replacing a self-hosted system with a vendor's
+      means accepting a permanent, low-level stream of work on their timetable. It is
+      usually a good trade. It is not a saving, and treating the integration as finished is
+      how you end up doing it urgently.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Internal tool migrations are harder than they look because the users are
+      colleagues.</strong> They cannot stop working, they will tell you immediately and
+      directly when something is wrong, and the things that matter to them are workflow
+      details invisible from the code.
+    </p>
+
+    <p>
+      <strong>Find the last feature gap early.</strong> The thing blocking decommissioning
+      is rarely architectural. It is a small habit the old system supported. Identify it at
+      the start, because it determines when you can finish.
+    </p>
+
+    <p>
+      <strong>Automated actors need identities.</strong> Any system where your software acts
+      on behalf of people needs an explicit model of which person, maintained by someone.
+      It will not be inferrable and it will not be optional.
+    </p>
+
+    <p>
+      <strong>Replacing is not adding.</strong> A migration that leaves the old system
+      running has not reduced anything — it has increased the number of places a thing can
+      be, which is the cost you were trying to remove.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a> &mdash; maintaining the portal a company runs on</li>
+        <li><a href="one-person-several-accounts.html">One person, several accounts</a> &mdash; SSO when identity isn't one-to-one</li>
+        <li><a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a> &mdash; retrofitting granular access control</li>
+        <li><a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a> &mdash; building call reporting end to end</li>
+        <li><a href="a-catalogue-is-a-query.html">A catalogue is a query</a> &mdash; selling hardware and addons through partners</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

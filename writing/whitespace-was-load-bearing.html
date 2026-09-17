@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The whitespace was load-bearing — Nathan Cartmell</title>
+<meta name="description" content="Removing newlines from a valid XML document took out desk phone directories across an entire handset range. The XML stayed valid; the line length did not.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The whitespace was load-bearing">
+<meta property="og:description" content="Removing newlines from a valid XML document took out desk phone directories across an entire handset range.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The whitespace was load-bearing</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      On a Wednesday morning in March, support started taking calls. Desk phone
+      directories had stopped working — not for one customer, but across an entire
+      manufacturer's range at once. The report that landed with us was unusually clear
+      about how strange it looked:
+    </p>
+
+    <blockquote>
+      <p>
+        Since the start of today we have had a large influx of calls and tickets
+        regarding issues with phonebook contacts… This even affects devices that are on
+        the most up to date firmware for that device. Every customer that reported this
+        states it was working fine in the past, including yesterday.
+      </p>
+    </blockquote>
+
+    <p>
+      Every part of that is the wrong shape for a normal bug. Not one model — all of
+      them. Not old firmware — current firmware too. Not a gradual degradation —
+      working yesterday, broken today. When a failure arrives evenly across a whole
+      device family overnight, it is almost never the devices. Something we sent them
+      changed.
+    </p>
+
+    <h2>What we had changed</h2>
+
+    <p>
+      Two days earlier I had merged a tidy-up. Our provisioning server builds XML
+      documents that handsets fetch on boot — configuration, line keys, directories.
+      Some of that XML was being generated with the indentation and line breaks you
+      would expect from a document builder, and a handful of parsers were unhappy with
+      the leading whitespace. So we normalised it with a small helper:
+    </p>
+
+<pre><code>fun cleanXml(xml: String) =
+    xml.filter { it != '\n' && it != '\r' && it != '\t' }
+       .trim()</code></pre>
+
+    <p>
+      Strip the newlines, carriage returns and tabs, trim the ends, and every document
+      comes out uniform. It fixed the display problem it was meant to fix. It is also
+      about as innocuous a change as it is possible to write.
+    </p>
+
+    <h2>Both documents were valid</h2>
+
+    <p>
+      This is the part worth sitting with. Whitespace between elements is insignificant
+      in XML. A pretty-printed document and the same document collapsed onto one line
+      are equivalent — same elements, same attributes, same text content, same tree.
+      Any conforming parser produces an identical result from both.
+    </p>
+
+    <p>
+      So there was nothing to catch. No schema violation, no malformed tag, no encoding
+      problem. Feed either version to any XML library you like and it parses cleanly.
+      The document we started sending was, by every measure a validator can express,
+      the same document we had been sending before.
+    </p>
+
+    <h2>The handsets were not running an XML parser</h2>
+
+    <p>
+      Or rather, not only one. Before anything reached a parser, the firmware on the
+      affected models read the HTTP response <em>line by line</em>, into a fixed-size
+      buffer. Lines longer than that buffer were truncated, and the remainder of the
+      line discarded.
+    </p>
+
+    <p>
+      That behaviour is invisible while documents contain newlines, because every line
+      is short. Remove the newlines and the entire document becomes a single line —
+      and for a directory, the length of that line scales with the number of contacts.
+      A customer with a handful of entries stayed under the limit and kept working. A
+      customer with a real company directory produced one very long line, the handset
+      read as much as it could hold, and the XML it handed to its parser was cut off
+      mid-document.
+    </p>
+
+    <p>
+      From the device's point of view the directory was malformed. From ours it was
+      perfectly valid and had been sent in full. Both were true.
+    </p>
+
+    <h2>Why testing did not catch it</h2>
+
+    <p>
+      We test provisioning changes against physical handsets. That testing passed, and
+      I do not think it was negligent — it was aimed at the wrong axis.
+    </p>
+
+    <p>
+      The failure needed two conditions at once: an affected model, and a directory
+      long enough to exceed that model's buffer. Test devices on a test account have
+      small directories. A modern handset with a generous buffer never truncates
+      regardless. Either variable alone looks completely healthy, and testing tends to
+      vary one thing at a time — a few devices with the same fixture data, or the same
+      device across a few scenarios.
+    </p>
+
+    <p>
+      What was missing was a test where the <em>size</em> of the payload was the
+      variable. Nothing in the change suggested payload size mattered, because in XML
+      terms it does not.
+    </p>
+
+    <h2>The fix</h2>
+
+    <p>
+      One line, in the same helper:
+    </p>
+
+<pre><code>fun cleanXml(xml: String) =
+    xml.filter { it != '\n' && it != '\r' && it != '\t' }
+       .trim()
+       .replace("&gt;&lt;", "&gt;\n&lt;")   // one tag per line</code></pre>
+
+    <p>
+      Strip every newline the builder produced, then deliberately put one back between
+      each pair of tags. The result is still whitespace-normalised — no indentation, no
+      stray tabs, which is what the original change was for — but now no single line is
+      longer than one element. Line length stops scaling with directory size, and the
+      buffer is never reached.
+    </p>
+
+    <p>
+      Newlines went from being noise to being structural. Nothing about the XML
+      changed; the only thing that changed was where we chose to break the bytes.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>"Valid" is a claim about a specification, not about a consumer.</strong>
+      Our output conformed to the XML spec before and after. The spec was never the
+      contract that mattered — the contract was with a particular firmware's reading
+      strategy, and that contract was undocumented and, until it broke, unknown.
+    </p>
+
+    <p>
+      <strong>Formatting is part of the interface when your consumer is embedded
+      hardware.</strong> On the web you can minify HTML, collapse JSON, strip newlines
+      from anything, and the only cost is readability. Devices with kilobytes of RAM
+      and a line-oriented read loop do not offer that guarantee. Treating layout as
+      cosmetic is an assumption inherited from software that runs on generous machines.
+    </p>
+
+    <p>
+      <strong>Ask what varies with load, not just what varies with input.</strong> The
+      change was correct for every document we tested and wrong for documents past a
+      threshold nothing in our system knew about. Size-dependent failures hide well,
+      because the small case is the one you naturally build a fixture for.
+    </p>
+
+    <p>
+      The change that caused this was two days old and looked like housekeeping. That
+      is usually how it goes: the risky-looking changes get the scrutiny, and the
+      whitespace cleanup goes in on a Monday afternoon.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

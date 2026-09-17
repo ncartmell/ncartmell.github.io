@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Expected failures are not errors — Nathan Cartmell</title>
+<meta name="description" content="Rolling tracing and structured logging across a platform. The instrumentation was the easy half; making the output mean something took longer.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Expected failures are not errors">
+<meta property="og:description" content="Rolling tracing and logging across a platform. Making the output mean something was the hard half.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Expected failures are not errors</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Adding observability to a platform sounds like a procurement decision followed by some
+      configuration. Pick a backend, add the agent, restart everything, look at the dashboard.
+    </p>
+
+    <p>
+      The instrumentation genuinely is close to that. What took the time was making the
+      output mean anything — and the single biggest contributor was that a large share of
+      what our services logged as errors were not errors at all.
+    </p>
+
+    <h2>The provisioning server taught me this</h2>
+
+    <p>
+      A provisioning server sits on the public internet and answers requests from devices. A
+      meaningful fraction of what reaches it is never going to succeed: a handset with a MAC
+      address that is not on any account, a device pointed at us by a customer who has not
+      bought anything, a scanner, a misconfigured phone retrying every thirty seconds
+      forever.
+    </p>
+
+    <p>
+      Every one of those is a request that cannot be fulfilled. It is not a fault. Nothing
+      is broken, no code path misbehaved, and there is no action anyone would take. But the
+      obvious implementation treats "could not fulfil this request" as an exception, logs it
+      at error level, and attaches a stack trace.
+    </p>
+
+    <p>
+      Do that at internet scale and your error log is almost entirely noise. Which means
+      nobody reads it. Which means the one genuine error in ten thousand lines goes past
+      unseen, and you have spent money on observability to obtain a slightly more expensive
+      way of not noticing things.
+    </p>
+
+    <p>
+      So a real chunk of the work was severity triage: reducing expected conditions to
+      warnings or information, and — separately, and just as valuable — stopping expected
+      failures from producing stack traces at all. A stack trace is a claim that something
+      unanticipated happened in a place worth looking at. Attaching one to a routine
+      rejection is a lie your log tells you several thousand times a day.
+    </p>
+
+    <h2>Traces that do not join up are worse than none</h2>
+
+    <p>
+      The tracing rollout went in two stages: every service, and then the gateway in front of
+      them.
+    </p>
+
+    <p>
+      The technically awkward part was context propagation. A request enters through the
+      gateway, hits one service, which calls two more over gRPC, one of which publishes a
+      message another consumes later. For that to be one trace rather than five, the context
+      has to survive every one of those boundaries — including the ones where the framework
+      does not do it for you, and the ones where a thread or a coroutine changes underneath
+      you.
+    </p>
+
+    <p>
+      Getting this half-right is genuinely worse than not doing it. A trace that stops at a
+      service boundary tells you the request vanished, which is a fact about your
+      instrumentation being presented as a fact about your system. People then reason about
+      the fake gap. Until propagation works end to end, the traces are actively misleading
+      rather than merely incomplete.
+    </p>
+
+    <h2>Telemetry must not take the service down</h2>
+
+    <p>
+      Two decisions I would repeat.
+    </p>
+
+    <p>
+      <strong>The trace destination is optional.</strong> If the collector is unreachable,
+      misconfigured, or having a bad day, services carry on. That sounds obvious and is
+      easy to get wrong, because the natural implementation fails startup on a bad endpoint
+      — and then an observability problem becomes an availability problem, which is exactly
+      backwards. Telemetry is how you watch the system; it must never be something the system
+      depends on.
+    </p>
+
+    <p>
+      <strong>You can ship to two destinations at once.</strong> Adding an optional secondary
+      destination meant we could evaluate a different backend, or move between them, without
+      a flag day. Observability tooling needs migrating like anything else, and the ability
+      to dual-ship is what makes that boring.
+    </p>
+
+    <p>
+      There is a pleasing symmetry there with
+      <a href="writing-to-both.html">dual-writing data</a> during a database migration. Same
+      idea, different layer: write to both, compare, switch reads, then stop.
+    </p>
+
+    <h2>Instrument before you need it, not after</h2>
+
+    <p>
+      The thing I would emphasise most is about timing rather than technique.
+    </p>
+
+    <p>
+      When we <a href="the-estate-is-the-hard-part.html">cut a provisioning server over by
+      DNS</a>, monitoring and alerting were configured in advance — before go-live, not
+      after. That was deliberate, and it is the single cheapest decision in the whole
+      exercise.
+    </p>
+
+    <p>
+      You cannot assess a cutover you cannot see. Without instrumentation in place
+      beforehand, the question "is this working?" gets answered by waiting to see whether
+      anybody complains, which is both slow and a poor test — most of what goes wrong in a
+      migration is degraded rather than broken, and nobody phones up about slightly wrong.
+    </p>
+
+    <p>
+      Adding observability after an incident is the normal pattern and it is always one
+      incident too late.
+    </p>
+
+    <h2>The domain-specific signals are the useful ones</h2>
+
+    <p>
+      Generic telemetry tells you about latency, throughput and error rates. Useful, and not
+      what anyone actually asks.
+    </p>
+
+    <p>
+      The signals that earned their place were specific: logging requests from unrecognised
+      hardware identifiers, so you can tell a customer why their handset will not provision.
+      Flagging number ports that have sat with a carrier too long. Alerting when a call
+      arrives with no source address — something that should be impossible and therefore
+      wants a human to look.
+    </p>
+
+    <p>
+      Those are not observability in the dashboard sense. They are the system telling you
+      about states that are meaningful in the business, and they get used because the person
+      reading them can act.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Severity is a product decision.</strong> The question is not "did something
+      fail" but "would anybody act on this". Anything nobody would act on is not an error,
+      whatever the code thinks, and log levels that do not reflect that make the whole output
+      worthless.
+    </p>
+
+    <p>
+      <strong>Half-propagated context is a lie.</strong> Incomplete traces do not degrade
+      gracefully — they invent gaps that people then investigate. Finish propagation before
+      trusting anything the traces say.
+    </p>
+
+    <p>
+      <strong>Never let telemetry become a dependency.</strong> Optional destinations,
+      non-fatal failures, and the ability to ship to two places at once. The observability
+      stack should be able to fall over without anyone outside the team noticing.
+    </p>
+
+    <p>
+      <strong>Instrument before the event.</strong> Monitoring added before a migration is
+      worth several times the same monitoring added after it, and the cost is identical.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reports are a scheduling problem — Nathan Cartmell</title>
+<meta name="description" content="Building call reporting end to end. The queries are the easy part; the hard parts are recurrence, drilldowns and deciding what a number means.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reports are a scheduling problem">
+<meta property="og:description" content="The queries are the easy part. Recurrence, drilldowns and agreeing what a number means are not.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Reports are a scheduling problem</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      I built call reporting for a phone platform — the part where a manager finds out how
+      many calls the sales team missed last Tuesday, how long people waited in the queue,
+      and which agent is drowning.
+    </p>
+
+    <p>
+      I expected the difficulty to be in the queries. It was not. Aggregating call records
+      is the most tractable part of the whole thing. The difficulty is that a report is not
+      a query — it is a saved definition, a recurrence, a delivery mechanism, a set of
+      people who receive it, and an agreement about what the numbers mean.
+    </p>
+
+    <h2>A report is a stored object</h2>
+
+    <p>
+      The first realisation is that you are not building reports. You are building a system
+      in which users build reports.
+    </p>
+
+    <p>
+      That means report definitions are first-class stored entities with their own
+      lifecycle: created, edited, disabled, deleted, duplicated as a template. Almost none
+      of the work is in producing numbers — it is in the fact that a saved definition can be
+      edited while a scheduled run is pending, deleted while it has history attached, or
+      disabled temporarily in a way that must not lose its configuration.
+    </p>
+
+    <p>
+      One small change from this work sums it up: if a report is deleted, delete its
+      schedule. Obvious in hindsight, and the sort of thing you discover because an orphaned
+      schedule kept firing for a report that no longer existed. Once definitions are
+      entities with dependents, you are doing referential integrity, not analytics.
+    </p>
+
+    <h2>Recurrence is the hard part</h2>
+
+    <p>
+      "Every Monday at 9" is easy to say and awkward to hold.
+    </p>
+
+    <p>
+      You need a next-run time per report, something that advances it after each run, and
+      something that notices when a run is due. That last one sounds like a scheduler and
+      mostly is, but the failure modes are specific: if advancing the next-run time happens
+      before the work, a failure loses the run; if it happens after, a crash mid-run means
+      it fires twice. Neither is obviously worse in the abstract, and which you choose
+      depends on whether a duplicated report is more annoying than a missing one. For
+      management reports it usually is.
+    </p>
+
+    <p>
+      Then: what happens to the schedule when somebody edits the definition, and does
+      changing the recurrence move the next run forwards or leave it alone? Both are
+      defensible and users have strong opinions.
+    </p>
+
+    <p>
+      The part I got wrong first time was assuming next-run maintenance could be derived on
+      read. It cannot, reliably, once recurrences are editable and runs can fail — the
+      derived answer depends on history you would then have to keep anyway. Storing and
+      advancing it explicitly is less elegant and correct.
+    </p>
+
+    <h2>Drilldowns are a second product</h2>
+
+    <p>
+      A summary number is useless without the ability to ask "which ones?". A manager
+      looking at forty-two missed calls wants the forty-two calls.
+    </p>
+
+    <p>
+      Supporting that is not a small addition. Every aggregate needs to know how to explain
+      itself: which underlying records contributed, what type of thing they are, and what
+      metadata to carry so the detail view is useful rather than a wall of identifiers.
+      Direction matters — inbound and outbound are different questions. Disposition matters
+      — answered, missed, abandoned, and the boundaries between those are decisions. Call
+      feedback, where it exists, belongs there too.
+    </p>
+
+    <p>
+      And because different aggregates drill down into different kinds of thing, the type of
+      a drilldown has to travel with the response so the interface knows what it is
+      rendering, including on custom templates where the author chose the shape.
+    </p>
+
+    <h2>Nobody agrees what a number means</h2>
+
+    <p>
+      The genuinely contentious part was not technical.
+    </p>
+
+    <p>
+      If a call rings a queue for twenty seconds, is answered by an agent who transfers it,
+      and the second agent handles it for four minutes — how many calls is that? Whose
+      answer time? If a caller hangs up after two seconds, is that abandoned, or noise?
+      Should a queue's statistics be split by agent, and if so, what happens to calls that
+      rang three agents before one picked up?
+    </p>
+
+    <p>
+      Every one of those has a defensible answer and different people in the same company
+      want different ones. A significant share of the work was splitting queue statistics
+      out by agent because the aggregate view answered a different question from the one
+      people were asking.
+    </p>
+
+    <p>
+      I also spent an unreasonable amount of time on things like null handling — treating
+      absent values as zero rather than propagating nothing — and on percentage rounding,
+      because a report where the columns do not add to a hundred generates more emails than
+      one that is a day late.
+    </p>
+
+    <h2>Ship it turned off</h2>
+
+    <p>
+      One decision I would repeat: the whole subsystem went out behind a feature toggle,
+      with the ability to disable reporting and deactivate anything running.
+    </p>
+
+    <p>
+      Reporting runs on a schedule against production data. If something is wrong, you often
+      find out at nine on a Monday when a hundred reports fire at once, and the useful
+      question is not "how do we fix this" but "how do we stop it while we think". A kill
+      switch that also stops the schedules is worth more on that morning than any amount of
+      pre-release testing.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Saved user-defined things are entities, not configuration.</strong> The moment
+      users can create, edit and delete definitions that have dependents, you have a data
+      model with integrity constraints — and you will find them by breaking them.
+    </p>
+
+    <p>
+      <strong>Decide explicitly whether you tolerate duplicates or gaps.</strong> Every
+      scheduled system has to choose, the choice is domain-specific, and leaving it to the
+      order in which you wrote two lines is how you get whichever one is worse.
+    </p>
+
+    <p>
+      <strong>An aggregate that cannot be expanded is barely useful.</strong> Design the
+      drilldown alongside the summary rather than afterwards, because the metadata it needs
+      has to be carried through from the start.
+    </p>
+
+    <p>
+      <strong>Definitions are a negotiation.</strong> The most valuable hours were spent
+      agreeing what counted as an answered call, not implementing the count. Get that
+      written down and agreed before building, because the implementation is cheap and
+      re-doing it after an argument is not.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a> &mdash; maintaining the portal a company runs on</li>
+        <li><a href="one-person-several-accounts.html">One person, several accounts</a> &mdash; SSO when identity isn't one-to-one</li>
+        <li><a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a> &mdash; retrofitting granular access control</li>
+        <li><a href="a-catalogue-is-a-query.html">A catalogue is a query</a> &mdash; selling hardware and addons through partners</li>
+        <li><a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a> &mdash; replacing the helpdesk support lives in</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

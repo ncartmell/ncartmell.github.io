@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hiding a button is not a permission — Nathan Cartmell</title>
+<meta name="description" content="Adding granular permissions to a portal that grew up without them, and keeping the interface honest about what a user can actually do.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hiding a button is not a permission">
+<meta property="og:description" content="Adding granular permissions to a portal that grew up without them, and keeping the interface honest.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Hiding a button is not a permission</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Products accumulate capability. A portal that started as "manage your phone system"
+      ends up able to reset credentials, reconfigure call routing, order hardware, change
+      billing, and export data about colleagues. Most of that is added for administrators
+      and, absent a reason not to, ends up visible to everyone.
+    </p>
+
+    <p>
+      Eventually somebody notices that a receptionist can see a button that would take down
+      an office, and you are retrofitting an access model onto a system built without one.
+    </p>
+
+    <h2>Roles are not enough</h2>
+
+    <p>
+      The instinct is a handful of roles — admin, user, read-only — and it survives about
+      a fortnight of contact with real customers.
+    </p>
+
+    <p>
+      Real organisations do not decompose that way. An office manager should administer
+      users but not touch billing. Someone in finance needs invoices and nothing else. A
+      partner's support staff need to act on customer accounts without being able to change
+      the commercial arrangement. Every one of those is a legitimate combination and none of
+      them is a point on a line from "can do little" to "can do everything".
+    </p>
+
+    <p>
+      So permissions end up granular and assignable individually: managing a provisioning
+      blacklist, setting custom codes, seeing migration tooling, performing specific
+      destructive actions. Roles, if you have them, become presets over that set rather
+      than the model itself.
+    </p>
+
+    <p>
+      That is more work and it is the only thing that survives. The alternative is a
+      permanent stream of requests to add another role that is mostly like an existing one.
+    </p>
+
+    <h2>Where permissions come from</h2>
+
+    <p>
+      A permission a user holds can arrive from several directions: granted directly, implied
+      by their role, inherited from the account, or bestowed by a partner administering them.
+      That is fine, and it means you need to be able to answer not just "can they" but "why",
+      and to validate that the sources themselves are coherent.
+    </p>
+
+    <p>
+      Checking that permission sources are valid sounds like paranoia until you have a
+      support conversation about why somebody can see something they should not, and the
+      only available answer is that the system says so. An access model you cannot explain
+      is one you cannot debug, and permission bugs are exactly the ones you get asked to
+      explain.
+    </p>
+
+    <h2>The interface has to agree with the server</h2>
+
+    <p>
+      Here is the failure mode that gives the post its title.
+    </p>
+
+    <p>
+      The enforcement has to be server-side. That is not negotiable — anything else is not a
+      permission, it is a suggestion. But if that is <em>all</em> you do, users see controls
+      that fail when used, which is its own kind of broken: they do not conclude "I lack
+      permission", they conclude the product is unreliable, and they raise a ticket.
+    </p>
+
+    <p>
+      So you need both, and the two must not drift. Every capability needs to be expressed
+      twice — once as an enforced check and once as something the interface can ask about
+      before rendering — and the second must be derived from the first rather than
+      reimplemented next to it. Reimplementing is how you get a button that is hidden from
+      people who could use it, and shown to people who cannot.
+    </p>
+
+    <p>
+      This extends further into the interface than expected. It is not only buttons: it is
+      whole tabs, options within a form, a contact-add control that should not appear when
+      the user has no directory they can write to, an account-creation link that should not
+      exist in one brand's client. Each of those is a place the interface asserts something
+      about capability, and each is a place it can be wrong.
+    </p>
+
+    <h2>Destructive actions deserve their own permission</h2>
+
+    <p>
+      Some capabilities are not "can this person edit" but "can this person do the
+      irreversible thing".
+    </p>
+
+    <p>
+      The example I keep coming back to is scrambling an account's calling credentials —
+      immediately invalidating them so that anything using them stops working. It is exactly
+      the right thing to do if credentials have leaked, and it is a genuinely bad afternoon
+      if done casually, because every device using them goes offline until reconfigured.
+    </p>
+
+    <p>
+      An action like that should not be bundled with general administration. It needs its
+      own permission, granted deliberately to specific people, because the population who
+      legitimately need it is much smaller than the population who can otherwise administer
+      an account. The general lesson: severity is a dimension of permissions, not just
+      subject area.
+    </p>
+
+    <h2>Not everything should be restricted</h2>
+
+    <p>
+      One change in this work went the other way: deliberately <em>not</em> restricting which
+      users the user list returns.
+    </p>
+
+    <p>
+      It is worth including because the instinct during an access-control tightening is that
+      more restriction is always safer. It is not. A phone system where you cannot see your
+      colleagues is not a more secure phone system, it is a broken one — you cannot transfer
+      a call to somebody you cannot find. Restricting that would have been defensible in a
+      review and wrong in the product.
+    </p>
+
+    <p>
+      Access control is a product decision wearing security clothing. The question is never
+      "is this sensitive" in the abstract; it is "who legitimately needs this to do their
+      job", and the answer is frequently "everyone".
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Granular from the start, roles as presets.</strong> Coarse roles feel simpler
+      and generate an endless queue of near-duplicates. The flexible model is more work once;
+      the rigid one is more work forever.
+    </p>
+
+    <p>
+      <strong>Enforce once, expose the same answer to the interface.</strong> Two
+      implementations of the same rule will diverge. Let the interface ask the server what
+      the user can do rather than working it out independently.
+    </p>
+
+    <p>
+      <strong>Separate severity from subject.</strong> The right split is often not "billing
+      versus users" but "reversible versus not". Irreversible actions want their own grants
+      regardless of which area they belong to.
+    </p>
+
+    <p>
+      <strong>Restriction has a cost, and it lands on people doing their jobs.</strong>
+      During a tightening exercise, every proposed restriction should have to answer who it
+      protects and who it obstructs. Sometimes the honest answer is that it obstructs
+      everyone and protects nobody.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a> &mdash; maintaining the portal a company runs on</li>
+        <li><a href="one-person-several-accounts.html">One person, several accounts</a> &mdash; SSO when identity isn't one-to-one</li>
+        <li><a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a> &mdash; building call reporting end to end</li>
+        <li><a href="a-catalogue-is-a-query.html">A catalogue is a query</a> &mdash; selling hardware and addons through partners</li>
+        <li><a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a> &mdash; replacing the helpdesk support lives in</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

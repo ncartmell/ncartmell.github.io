@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nathan Cartmell — Backend Developer</title>
+<meta name="description" content="Nathan Cartmell — backend developer working on cloud communications infrastructure. Kotlin, Java, Python, Swift.">
+<link rel="canonical" href="https://ncartmell.co.uk/">
+
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Nathan Cartmell — Backend Developer">
+<meta property="og:description" content="Backend developer working on cloud communications infrastructure. Kotlin, Java, Python, Swift.">
+<meta property="og:url" content="https://ncartmell.co.uk/">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nathan Cartmell">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Nathan Cartmell",
+  "jobTitle": "Backend Developer",
+  "url": "https://ncartmell.co.uk/",
+  "image": "https://ncartmell.co.uk/photo.jpg",
+  "email": "mailto:me@ncartmell.co.uk",
+  "address": {"@type": "PostalAddress", "addressLocality": "Guildford", "addressCountry": "GB"},
+  "sameAs": [
+    "https://github.com/ncartmell",
+    "https://www.linkedin.com/in/nathan-cartmell-9a6b88335/"
+  ]
+}
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <img class="photo" src="photo.jpg" alt="Nathan Cartmell">
+    <div>
+      <h1>Nathan Cartmell</h1>
+      <div class="role">Backend Developer</div>
+      <div class="loc">Guildford, UK</div>
+      <nav class="links">
+        <a href="mailto:me@ncartmell.co.uk" data-print="me@ncartmell.co.uk">Email</a>
+        <a href="https://github.com/ncartmell" data-print="github.com/ncartmell" rel="me">GitHub</a>
+        <a href="https://www.linkedin.com/in/nathan-cartmell-9a6b88335/" data-print="linkedin.com/in/nathan-cartmell" rel="me">LinkedIn</a>
+        <a href="projects/" class="no-print">Projects</a>
+        <a href="writing/" class="no-print">Writing</a>
+        <a class="print-btn no-print" href="cv.pdf">Download CV</a>
+      </nav>
+      <p class="availability">
+        Not looking for a new role at the moment, but always happy to talk backend or telecoms.
+      </p>
+    </div>
+  </header>
+
+  <main>
+
+  <section>
+    <h2>About</h2>
+    <p class="now">
+      <span class="now-label">Currently</span>
+      <span class="now-text">Rebuilding device provisioning onto a new Kotlin and Spanner
+      platform, and carrying the legacy VoIP and account domains across to it.</span>
+    </p>
+    <p>
+      I build the systems behind cloud communications software — provisioning, VoIP
+      account management and billing for a
+      <a href="https://www.callswitchone.com/">UK platform</a> serving over 200,000 users.
+    </p>
+    <p>
+      I started in technical support, moved into mobile development building the
+      company's native iOS and Android clients, and now work primarily on backend
+      services. Having dealt with customer problems directly and then built the
+      interfaces those customers use, I have a broad view of the domain — and it shapes
+      design decisions as much as the technical reasoning does.
+    </p>
+    <p class="no-print">
+      Outside work I'm usually running —
+      <a href="https://www.strava.com/athletes/127813944">Strava</a> if you're curious.
+    </p>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+
+    <div class="job">
+      <div class="job-top">
+        <h3>System Developer <span class="org">· Nebula</span></h3>
+        <span class="when">Dec 2023 — Present</span>
+      </div>
+      <ul>
+        <li>
+          One of five engineers building a greenfield Kotlin microservices platform to
+          replace a decade-old Java monolith — Spring Boot, gRPC, Protobuf and Cloud
+          Spanner on GCP. Second in seniority on the project, owning the provisioning,
+          VoIP and account domains.
+        </li>
+        <li>
+          Schema and data ownership across both generations of the platform: designing
+          entities and migrations for the new system, consolidating overlapping legacy
+          models, and keeping the two consistent while they run side by side.
+        </li>
+        <li>
+          Feature delivery end to end across the product range — customer portals, partner
+          ordering, billing and provisioning — usually taking a requirement from
+          specification through to release rather than building to someone else's design.
+        </li>
+        <li>
+          Maintain the internal systems the company runs on, including the operations
+          portal used daily by support, sales and provisioning staff.
+        </li>
+        <li>
+          Act as effective third line for production issues — the escalation point when
+          support and the wider development team cannot resolve something, diagnosing live
+          against real customer impact.
+        </li>
+        <li>
+          Platform-wide engineering work: OpenTelemetry tracing across every service and the
+          gateway, static analysis and formatting standards, API documentation, and rebuilt
+          test suites.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top">
+        <h3>Mobile Developer <span class="org">· Nebula</span></h3>
+        <span class="when">Dec 2022 — Dec 2023</span>
+      </div>
+      <ul>
+        <li>
+          Principal developer on the native iOS softphone in Swift, and its Android
+          counterpart in Kotlin from late 2023 — maintained both alongside backend work
+          until they were succeeded by a React Native rewrite in 2025.
+        </li>
+        <li>
+          Built WebRTC video conferencing: in-call UI, waiting rooms, host admin controls,
+          participant management and inbound conference joining.
+        </li>
+        <li>
+          Delivered team chat with user tagging, markdown rendering, pinning, read state
+          and SMS conversations — plus voicemail notifications, BLF presence indicators,
+          call history and contact management.
+        </li>
+        <li>
+          Shipped a single codebase as two separately branded white-label applications.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top">
+        <h3>Technical Support Engineer <span class="org">· Nebula</span></h3>
+        <span class="when">Jun 2021 — Dec 2022</span>
+      </div>
+      <ul>
+        <li>
+          Second-line support for the same communications platform I now build —
+          diagnosing call quality, routing and provisioning issues across partner deployments.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Selected Work</h2>
+
+    <div class="job">
+      <div class="job-top">
+        <h3>Provisioning platform migration</h3>
+        <span class="when">2026</span>
+      </div>
+      <ul>
+        <li>
+          Provisioning is what configures a desk phone the moment it is plugged in — line
+          keys, directories, dial plans, busy-lamp indicators — with nobody touching the
+          handset. I rebuilt it from the legacy monolith into the new Kotlin platform and
+          shipped it through staged releases without interrupting live provisioning.
+        </li>
+        <li>
+          Supports Grandstream, Yealink, Cisco, Polycom, Fanvil and Gigaset hardware, each
+          with its own firmware quirks. One fix meant reformatting responses to one XML tag
+          per line after tracing a failure to handsets using fixed-size line-read buffers
+          that silently truncated anything longer.
+        </li>
+        <li>
+          Built the dual-write framework keeping legacy and new data models consistent
+          throughout the migration — the seam the wider platform transition depends on.
+        </li>
+        <li>
+          I had maintained the Python provisioning server it replaced for two years, so the
+          rebuild carried forward behaviour I already owned rather than reverse-engineering
+          someone else's. Device check-in intervals are randomised so that thousands of
+          handsets do not poll simultaneously after a restart.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job print-hide">
+      <div class="job-top">
+        <h3>Internal CRM and operations portal</h3>
+        <span class="when">2024 — Present</span>
+      </div>
+      <ul>
+        <li>
+          Principal maintainer of the Python/Flask portal the company runs on internally —
+          where support, sales and provisioning staff manage customers, partners, orders,
+          hardware and tickets. Most departments touch it daily, so changes land in front of
+          colleagues immediately.
+        </li>
+        <li>
+          Migrated customer ticketing from OSTicket to Zendesk and decommissioned the old
+          system: canned responses, webhooks, group and form routing, tagging, submitter
+          identity and multi-brand domain handling.
+        </li>
+        <li>
+          Recent additions include renewals-at-risk and number reporting, partner and store
+          management, Stripe Identity verification, knowledge-base publishing, bulk site
+          moves and an internal staff directory.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top">
+        <h3>Order and event processing</h3>
+        <span class="when">2024 — Present</span>
+      </div>
+      <ul>
+        <li>
+          The asynchronous backbone behind the platform: reseller and partner order
+          processors, email subscribers, port verification handling, fraud alerting, and the
+          record processor feeding call reporting.
+        </li>
+        <li>
+          Spans both event-driven consumers on Pub/Sub and recurring scheduled work —
+          including distributed locking so that a job fires once across every running
+          instance rather than once per instance.
+        </li>
+        <li>
+          Also covers number lifecycle — recycling deactivated numbers back into the
+          available pool — and scheduled reconciliation against the payment and accounting
+          systems.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job print-hide">
+      <div class="job-top">
+        <h3>White-label customer portal</h3>
+        <span class="when">2024 — Present</span>
+      </div>
+      <ul>
+        <li>
+          The self-service portal partners' own customers use, delivered entirely under the
+          partner's branding rather than ours — the product promise the business sells on.
+        </li>
+        <li>
+          Ordering flow and processors, porting provider selection, package management and
+          cancellation, member and user administration, and fraud alerting. Python and Flask
+          with a TypeScript front end.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job print-hide">
+      <div class="job-top">
+        <h3>Wholesale fibre partner integration</h3>
+        <span class="when">2025 — 2026</span>
+      </div>
+      <ul>
+        <li>
+          Bespoke ordering and provisioning API for a wholesale fibre partner, spanning four
+          services: SKU handling, automatic service configuration, number migration on
+          customer creation, and partner-specific outbound call restrictions.
+        </li>
+        <li>
+          Emergency calls stay connectable regardless of those restrictions or any rate
+          limiting applied to the account.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top">
+        <h3>Emergency address consolidation</h3>
+        <span class="when">2025</span>
+      </div>
+      <ul>
+        <li>
+          UK operators must hold an accurate installation address for every number so that
+          999 calls reach the correct control room. Two overlapping address models had grown
+          up in the database — number addresses and emergency addresses — leaving no single
+          source of truth for a legally significant field.
+        </li>
+        <li>
+          Consolidated onto one model and removed the legacy path entirely, reconciling four
+          upstream carriers with differing address formats and validation rules, and adding
+          validation at the point of entry rather than at submission.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job print-hide">
+      <div class="job-top">
+        <h3>Multi-carrier number porting</h3>
+        <span class="when">2024 — 2025</span>
+      </div>
+      <ul>
+        <li>
+          Porting moves a customer's existing number across from another provider. It is
+          regulated, document-backed, and unforgiving — a failed port means a business
+          loses its published phone number.
+        </li>
+        <li>
+          Built Letter of Authority generation and status tracking, ownership document
+          upload, bulk porting, carrier-specific request formats across four providers, and
+          Ofcom Do-Not-Originate list handling, integrated with Salesforce for the
+          commercial workflow.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job print-hide">
+      <div class="job-top">
+        <h3>Call reporting subsystem</h3>
+        <span class="when">2024</span>
+      </div>
+      <ul>
+        <li>
+          Built call reporting end to end: data model, record processor, and a scheduler
+          that maintains next-run dates and triggers reports on recurring intervals.
+        </li>
+        <li>
+          Queue and agent statistics derived from call detail records — summaries,
+          dispositions, ring timeouts and unregistered-agent handling — released behind a
+          feature toggle.
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>How I Work</h2>
+    <ul class="plain">
+      <li>
+        I have reviewed around 630 pull requests across the organisation. A meaningful part
+        of my contribution sits in other people's branches rather than my own — catching
+        problems early is cheaper than catching them in production.
+      </li>
+      <li>
+        I support developers joining the team, having come through the graduate route here
+        myself and remembering what was unclear.
+      </li>
+      <li>
+        Getting work out of the door often means driving the conversation rather than the
+        code. I coordinate across QA, Product, Support, Marketing and Development to get a
+        release agreed, tested and actually shipped.
+      </li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Technical</h2>
+    <dl class="skills">
+      <dt>Languages</dt>
+      <dd>
+        <span class="chip">Kotlin</span><span class="chip">Java</span><span class="chip">Python</span><span class="chip">Swift</span><span class="chip">TypeScript</span><span class="chip">SQL</span>
+      </dd>
+
+      <dt>JVM</dt>
+      <dd>
+        <span class="chip">Spring Boot</span><span class="chip">Spring Data</span><span class="chip">gRPC</span><span class="chip">Protobuf</span><span class="chip">Hibernate/JPA</span><span class="chip">Coroutines</span><span class="chip">OpenAPI</span><span class="chip">Spark Java</span>
+      </dd>
+
+      <dt>Python</dt>
+      <dd>
+        <span class="chip">Flask</span><span class="chip">SQLAlchemy</span><span class="chip">Flask-Login</span><span class="chip">Jinja</span>
+      </dd>
+
+      <dt>Data</dt>
+      <dd>
+        <span class="chip">Cloud Spanner</span><span class="chip">PostgreSQL</span><span class="chip">MySQL</span><span class="chip">Redis</span>
+      </dd>
+
+      <dt>Platform</dt>
+      <dd>
+        <span class="chip">GCP</span><span class="chip">Pub/Sub</span><span class="chip">Docker</span><span class="chip">Unleash</span>
+      </dd>
+
+      <dt>Observability</dt>
+      <dd>
+        <span class="chip">OpenTelemetry</span><span class="chip">Micrometer</span><span class="chip">SonarQube</span>
+      </dd>
+
+      <dt>Testing</dt>
+      <dd>
+        <span class="chip">JUnit</span><span class="chip">MockK</span><span class="chip">AssertJ</span><span class="chip">Testcontainers</span>
+      </dd>
+
+      <dt>Mobile</dt>
+      <dd>
+        <span class="chip">Swift</span><span class="chip">Android</span><span class="chip">WebRTC</span>
+      </dd>
+
+      <dt>Integrations</dt>
+      <dd>
+        <span class="chip">Stripe</span><span class="chip">GoCardless</span><span class="chip">Salesforce</span><span class="chip">Zendesk</span><span class="chip">Xero</span>
+      </dd>
+
+      <dt>Domain</dt>
+      <dd>
+        <span class="chip">VoIP &amp; SIP</span><span class="chip">Device provisioning</span><span class="chip">Number porting &amp; lifecycle</span><span class="chip">Carrier integration</span><span class="chip">Emergency call routing</span><span class="chip">Ofcom compliance</span><span class="chip">Subscription billing</span><span class="chip">CDR &amp; call reporting</span>
+      </dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Certifications</h2>
+    <div class="row">
+      <span class="what">Cradlepoint Certified Network Expert</span>
+    </div>
+    <div class="row">
+      <span class="what">Ubiquiti Enterprise Wireless Admin</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+    <div class="row">
+      <span class="what">Higher National Certificate, Computer Science
+        <span class="sub">· The Bedford College Group</span></span>
+      <span class="when">2020 — 2021</span>
+    </div>
+  </section>
+
+  </main>
+
+  <footer>
+    <span>Nathan Cartmell — ncartmell.co.uk</span>
+    <span class="no-print">me@ncartmell.co.uk</span>
+    <span class="colophon no-print">
+      Hand-written HTML and CSS — no build step, no JavaScript, no dependencies.
+      The PDF is this same page through a print stylesheet.
+    </span>
+  </footer>
+
+</div>
+</body>
+</html>

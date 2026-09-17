@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The store is part of the system — Nathan Cartmell</title>
+<meta name="description" content="Shipping one codebase as several branded apps through two app stores. Release is not a deployment step, it is a dependency with its own deadlines and its own opinions.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The store is part of the system">
+<meta property="og:description" content="Shipping one codebase as several branded apps through two stores, each with its own deadlines and opinions.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The store is part of the system</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Backend deployment is a solved problem in the sense that it is <em>your</em> problem.
+      You choose when, you choose how, and if it goes wrong you roll back. Nobody asks
+      permission.
+    </p>
+
+    <p>
+      Mobile is not like that, and the difference is more structural than "there is a review
+      step". The stores are participants in your architecture. They impose deadlines you did
+      not agree to, they can refuse your release for reasons unrelated to your code, and the
+      version people are running is a distribution rather than a fact.
+    </p>
+
+    <h2>One codebase, several apps</h2>
+
+    <p>
+      Our apps ship under more than one brand. Same code, different names, different icons,
+      different colours, different store listings — because partners sell the product as
+      their own.
+    </p>
+
+    <p>
+      That multiplies everything downstream of the build. Each brand is a separate store
+      entry with its own metadata, screenshots, review cycle and release state. A single fix
+      is not one release, it is one release per brand per platform, each of which can be at
+      a different stage. My commit history is full of build entries naming two brands at once,
+      precisely because keeping those in step was a thing that had to be actively done
+      rather than something that happened.
+    </p>
+
+    <p>
+      And they can diverge involuntarily. One brand's submission clears review; the other
+      is held for a question. Now the same code is live for some users and not others, and
+      any server-side change has to account for both being in the wild simultaneously.
+    </p>
+
+    <h2>Rejection is often not about the code</h2>
+
+    <p>
+      One of my favourite commits from this period fixes the alpha channel in an app icon.
+      Not a crash, not a policy violation, not a feature — a transparency channel in a PNG
+      that the store will not accept.
+    </p>
+
+    <p>
+      That is representative. Submissions get bounced for metadata, for screenshots that no
+      longer match the interface, for a privacy declaration that does not cover a library
+      somebody added, for an entitlement you needed but did not justify. None of it is
+      visible to a test suite, and all of it costs a review cycle.
+    </p>
+
+    <p>
+      The practical consequence is that the release checklist is not a build script. It is a
+      list of things a human verifies, and treating it as automatable is how you discover
+      the manual step by failing it.
+    </p>
+
+    <h2>The upgrade treadmill is not optional</h2>
+
+    <p>
+      Android requires apps to target a recent platform version to remain publishable, and
+      that requirement moves every year with a hard deadline. This is not a suggestion, it
+      is not driven by anything you want, and missing it means you cannot ship updates at
+      all.
+    </p>
+
+    <p>
+      Each bump brings behavioural changes. Permissions that were granted become
+      prompted-for. Background execution tightens. APIs you depend on are restricted. So the
+      work is not "change a number in the build file", it is "change a number and then find
+      out what broke".
+    </p>
+
+    <p>
+      My history has a sequence I would point any junior engineer at: support the new target
+      version, then revert to the previous one, then do it properly later. That is not a
+      failure. That is the correct response to discovering mid-flight that a mandatory
+      upgrade has consequences you had not budgeted for — take the revert, ship the things
+      that were waiting behind it, come back when you can do it deliberately.
+    </p>
+
+    <p>
+      The mistake would have been pushing through because the deadline is real. Deadlines
+      set by somebody else are still real when you are halfway into a bad week.
+    </p>
+
+    <h2>Point releases break things</h2>
+
+    <p>
+      Another commit: updating a phone-number parsing library because the version we had did
+      not work on a specific iOS point release.
+    </p>
+
+    <p>
+      Not a major version. A patch. Somewhere between two decimal places, behaviour changed
+      enough to break a dependency used on every screen that displays a number — and the
+      only way to find out was that it started happening to users on a version that did not
+      exist when we shipped.
+    </p>
+
+    <p>
+      That is the part of mobile that has no backend equivalent. Your runtime updates itself,
+      on hundreds of millions of devices, on a schedule you do not control, and it can break
+      code you have not touched in a year. There is no staging environment for "next week's
+      OS release on a device somebody actually owns".
+    </p>
+
+    <h2>Your users are on every version at once</h2>
+
+    <p>
+      The thing that most changes how you write code: there is no current version.
+    </p>
+
+    <p>
+      A backend deploy means everyone is on the new thing in minutes. A mobile release means
+      a slow diffusion — some people update overnight, some in a month, some have automatic
+      updates off and are running something from two years ago. All of them are talking to
+      the same API.
+    </p>
+
+    <p>
+      So every client-server change is a compatibility exercise by default, and it is
+      permanent. You cannot remove an endpoint because the last app version that used it
+      shipped; you can remove it when the last user of that version has upgraded, which is a
+      different and much later date, and one you have to actually measure.
+    </p>
+
+    <p>
+      It also means the app has to tell the server what it is capable of, rather than the
+      server assuming. That is why our requests carry a version — not for analytics, but so
+      the server can decide whether this client can cope with a newer response shape.
+    </p>
+
+    <h2>Releases are driven by crashes</h2>
+
+    <p>
+      Reading the history back, a striking number of releases exist to fix crashes. Build
+      numbers appear in commit messages with reasons attached — a build to fix random resets
+      caused by failing to read preferences, a build to fix chat crashes, a build with a
+      potential fix for something intermittent.
+    </p>
+
+    <p>
+      That cadence is a consequence of everything above. A crash on the backend is a log
+      entry and a hotfix within the hour. A crash on mobile is a percentage of your users
+      unable to use the product until a fix clears review and they choose to update. The
+      urgency is higher and the levers are slower, which is an uncomfortable combination and
+      the main reason mobile teams care about crash-free rates in a way backend teams rarely
+      care about equivalent metrics.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Treat the store as a dependency with an SLA you did not negotiate.</strong> It
+      has deadlines, it has opinions about non-code artefacts, and it can block you for
+      reasons unrelated to quality. Plan releases around it rather than being surprised by
+      it.
+    </p>
+
+    <p>
+      <strong>Mandatory upgrades deserve their own slot.</strong> Platform target bumps are
+      not maintenance to be squeezed in. They are dated, unavoidable work with unknown
+      consequences, and the right response to finding out mid-flight is to revert and
+      reschedule rather than push through.
+    </p>
+
+    <p>
+      <strong>Version negotiation belongs in the protocol.</strong> When you cannot make
+      clients upgrade, the server has to be told what it is talking to. Building that in
+      early is much cheaper than retrofitting it the first time you need to change a
+      response shape.
+    </p>
+
+    <p>
+      <strong>Multiplying brands multiplies releases, not code.</strong> The engineering
+      cost of white-labelling a mobile app is small. The operational cost — listings,
+      reviews, screenshots, release states that drift apart — is not, and it is paid every
+      single release rather than once.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-socket-is-not-the-call.html">The socket is not the call</a> &mdash; when the transport dies but the OS disagrees</li>
+        <li><a href="presence-is-not-a-boolean.html">Presence is not a boolean</a> &mdash; four inputs, one dot, everybody subscribed</li>
+        <li><a href="the-rewrite-that-was-never-a-project.html">The rewrite that was never a project</a> &mdash; a framework migration nobody scheduled</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

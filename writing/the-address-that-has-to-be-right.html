@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The address that has to be right — Nathan Cartmell</title>
+<meta name="description" content="Two overlapping models had grown up for the address that determines where a 999 call is routed. Consolidating them meant deciding which one had ever been true.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The address that has to be right">
+<meta property="og:description" content="Two overlapping models for the field that determines where a 999 call is routed, and what it took to get back to one.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The address that has to be right</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Most fields in most databases are wrong sometimes and it does not matter much. A
+      stale job title, a misspelled company name, a phone number with a space in the wrong
+      place — someone notices eventually, someone fixes it, nothing happens in between.
+    </p>
+
+    <p>
+      UK telephone numbers carry a field that is not like that. Every number has an
+      installation address on record, and when somebody dials 999 that address is what
+      determines which emergency control room takes the call and where they send people.
+      It is the one column in the schema where being wrong has a consequence measured in
+      something other than annoyance.
+    </p>
+
+    <p>
+      We had two of them.
+    </p>
+
+    <h2>How you end up with two</h2>
+
+    <p>
+      Nobody designs this. It accretes.
+    </p>
+
+    <p>
+      One model exists because numbers have always had an address — where the line is, for
+      billing, for records, for the thing a number is attached to. The other exists because
+      emergency addressing has its own requirements, its own validation, and its own
+      lifecycle: it needs to be confirmed, it needs to survive a number moving between
+      accounts, it gets submitted to upstream carriers in formats they specify.
+    </p>
+
+    <p>
+      At some point somebody needed the second thing, the first thing did not quite fit,
+      and adding alongside was cheaper than reconciling. That is a reasonable decision on
+      the day. Repeat it across a few years of features and you have two tables, two sets
+      of writers, two sets of readers, and an ambiguity nobody owns: <em>when these
+      disagree, which one is true?</em>
+    </p>
+
+    <p>
+      The answer, in practice, was "it depends which code path you came through", which is
+      the answer you never want for a field like this.
+    </p>
+
+    <h2>The symptom that gave it away</h2>
+
+    <p>
+      My favourite artefact from this work is a one-line deletion. There was a getter for
+      a number's primary address that did not correctly handle the case where <em>no</em>
+      address was marked primary.
+    </p>
+
+    <p>
+      That is a strange bug to have, until you think about what it implies. A model with a
+      genuine single source of truth cannot produce that state — there is one address and
+      it is the address. The only way to reach "none of these is primary" is for the data
+      to permit a set of addresses with no designated winner, which is exactly the
+      condition two overlapping models create. The bug was not really in the getter. The
+      getter was where an impossible state finally surfaced as a stack trace.
+    </p>
+
+    <p>
+      Defensive code around a field like that is a bad sign in general. If you find
+      yourself writing a fallback for "what if there is no primary address", the question
+      to ask is not which fallback to pick but why the data allows the question.
+    </p>
+
+    <h2>Four carriers, four opinions</h2>
+
+    <p>
+      The consolidation could not be purely internal, because the address is not only ours.
+      It gets submitted onward to the upstream carriers we buy numbers from, and each of
+      them has its own format, its own validation rules and its own idea of what an address
+      is made of.
+    </p>
+
+    <p>
+      One wants a thoroughfare as a distinct field. Another accepts a shape that a third
+      rejects outright. Addresses in the Republic of Ireland do not decompose the way UK
+      ones do, and at least one carrier's schema assumed they did. Some of these
+      requirements are documented; some are discovered when a submission is refused.
+    </p>
+
+    <p>
+      So "one internal model" also meant "one internal model that can be projected into
+      four external ones without losing anything any of them require" — which is a
+      meaningfully harder constraint than picking whichever of your two tables looked
+      tidier.
+    </p>
+
+    <h2>Doing the consolidation</h2>
+
+    <p>
+      The change that removed the legacy path landed across three codebases on the same
+      day, alongside a database migration that merged the two tables. The code change was
+      a net deletion — several hundred lines added, twice as many removed.
+    </p>
+
+    <p>
+      Two things about that are worth saying plainly.
+    </p>
+
+    <p>
+      <strong>The ordering mattered more than the code.</strong> A schema migration that
+      merges two tables and a deploy that stops writing to one of them cannot go out in
+      either order safely without thought. The pull request carried an explicit instruction
+      not to merge the code until the database work was done. That kind of note is doing
+      real work — it is the part of the change that cannot be expressed in the diff.
+    </p>
+
+    <p>
+      <strong>Deleting the old path was the point.</strong> It is tempting, on a field this
+      sensitive, to keep the old model around as a safety net. That instinct is exactly
+      backwards. Two models that disagree are the hazard; keeping one as a fallback
+      preserves the hazard while adding the illusion of safety. Either the new model is
+      trustworthy enough to be the only one, or it is not ready.
+    </p>
+
+    <p>
+      Validation also moved earlier — checked when an address is entered rather than when
+      it is submitted onward. The gap between those two moments is where bad data used to
+      live comfortably, sometimes for months, because nothing forced the question until a
+      carrier rejected it.
+    </p>
+
+    <h2>The emergency path gets exceptions everywhere</h2>
+
+    <p>
+      A postscript, because it belongs to the same theme and I find it clarifying.
+    </p>
+
+    <p>
+      Elsewhere in the platform there is rate limiting on call handling, as there is on any
+      system that must protect itself. There is also a single line that says: not for
+      emergency calls.
+    </p>
+
+    <p>
+      It is a one-line change and it took no skill to write. But it captures something
+      about this domain that took me a while to internalise. Almost every protective
+      mechanism you build — throttling, quotas, restrictions on outbound calling, blocks
+      applied to accounts in arrears — needs a carve-out for the emergency path, because
+      the scenario in which the carve-out matters is the one where someone has dialled 999
+      from an account somebody forgot to pay for.
+    </p>
+
+    <p>
+      The general rule of a rate limiter is that exceptions weaken it. Here the exception
+      is not a weakening, it is the requirement.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Two models for one fact is ambiguity, not redundancy.</strong> Redundancy is
+      two copies that are guaranteed to agree. Two independently-written models of the same
+      real-world thing will diverge, and the divergence is silent until somebody asks a
+      question that depends on it.
+    </p>
+
+    <p>
+      <strong>Defensive handling of impossible states is a design smell.</strong> The
+      fallback for "there is no primary address" was a workaround for a model that should
+      not have permitted it. Deleting the workaround was only possible after fixing the
+      model, and that is the usual order.
+    </p>
+
+    <p>
+      <strong>Validate at entry, not at submission.</strong> Anywhere those two moments are
+      separated by time, bad data will accumulate in the gap, and you will discover it in
+      bulk at the least convenient moment.
+    </p>
+
+    <p>
+      <strong>Some fields deserve a different standard.</strong> Most of engineering is
+      correctly about trade-offs, effort proportionate to consequence. It is worth
+      identifying the handful of places in your system where the consequence is not
+      commercial, and being unreasonable about those specifically.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="porting-a-number.html">Porting a number</a> &mdash; a regulated handover between competitors</li>
+        <li><a href="someone-elses-phone-bill.html">Someone else's phone bill</a> &mdash; toll fraud, and escalating rather than blocking</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

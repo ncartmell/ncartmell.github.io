@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{width:1200px; height:630px; overflow:hidden}
+  body{
+    background:#101215;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    color:#e6e8ec;
+    display:flex; align-items:center; gap:64px;
+    padding:0 96px;
+    position:relative;
+  }
+  /* subtle accent wash */
+  body::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(900px 520px at 88% 12%, rgba(110,168,255,.14), transparent 62%);
+    pointer-events:none;
+  }
+  .photo{
+    width:248px; height:248px; flex:0 0 248px; border-radius:50%;
+    object-fit:cover; border:4px solid #24272d;
+  }
+  .text{position:relative; z-index:1; min-width:0}
+  h1{
+    font-size:82px; line-height:1.03; letter-spacing:-.028em; font-weight:660;
+    margin-bottom:18px;
+  }
+  .role{font-size:38px; color:#a7aeb9; font-weight:400; letter-spacing:-.008em}
+  .rule{width:88px; height:4px; background:#6ea8ff; border-radius:2px; margin:34px 0 26px}
+  .domain{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    font-size:27px; color:#7f8794; letter-spacing:.02em;
+  }
+</style>
+</head>
+<body>
+  <img class="photo" src="photo.jpg" alt="">
+  <div class="text">
+    <h1>Nathan&nbsp;Cartmell</h1>
+    <div class="role">Backend Developer</div>
+    <div class="rule"></div>
+    <div class="domain">ncartmell.co.uk</div>
+  </div>
+</body>
+</html>

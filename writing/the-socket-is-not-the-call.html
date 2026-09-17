@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The socket is not the call — Nathan Cartmell</title>
+<meta name="description" content="Building real-time calling into a mobile app means the operating system, your app and a websocket all hold an opinion about whether a call is happening. They disagree.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The socket is not the call">
+<meta property="og:description" content="The OS, your app and a websocket all hold an opinion about whether a call is happening. They disagree.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The socket is not the call</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      I spent three years building the iOS and Android clients for a phone system. The
+      hardest thing in either app was not the audio, the video, or the interface. It was
+      that at any given moment there are three different opinions about whether you are
+      on a call — the operating system's, the app's, and the websocket's — and a phone
+      spends its whole life doing things that make them disagree.
+    </p>
+
+    <h2>Three sources of truth</h2>
+
+    <p>
+      On iOS, an app that handles calls does not draw its own incoming-call screen. It
+      hands the call to the system, which shows the native call interface, takes over the
+      lock screen, routes audio, and manages interruptions against the cellular network.
+      That is the right design — it means an internet call behaves like a normal one — but
+      it means the OS now holds a copy of your call state and will act on it.
+    </p>
+
+    <p>
+      Underneath, the actual signalling runs over a websocket: invitations, participants
+      joining and leaving, someone muting, the call ending. And the app holds its own model
+      of what is happening, because it has a screen to draw.
+    </p>
+
+    <p>
+      When all three agree, nothing is interesting. The work is in the gaps.
+    </p>
+
+    <h2>The transport dies, the call does not</h2>
+
+    <p>
+      Here is the failure that taught me the most. A user is in a meeting. The websocket
+      drops — they walked into a lift, the network handed over from wifi to cellular, the
+      server restarted. The app notices. The system does not, because as far as it knows
+      there is a call in progress and nobody has told it otherwise.
+    </p>
+
+    <p>
+      So the native call interface stays on screen. The lock screen shows an active call.
+      Audio routing stays seized. The user taps the red button and it does nothing useful,
+      because the thing that would normally end the call is a message over a socket that no
+      longer exists.
+    </p>
+
+    <p>
+      From the user's point of view their phone is stuck in a call that is not happening.
+      The only reliable escape is force-quitting the app, which is not a feature.
+    </p>
+
+    <p>
+      The fix is not subtle once you see it, but it has to be applied in every direction:
+      <strong>whenever the transport fails, the OS-level call must be torn down
+      explicitly</strong> — on a disconnect the user did not initiate, on a socket that
+      fails to open at all, and on any close for any other reason. The app has to treat
+      "my socket has gone" as an event that propagates outward into system state, not just
+      an error it logs and shows a spinner for.
+    </p>
+
+    <p>
+      The same applies to the ordinary end-of-call path: ending a call has to invalidate
+      its timers and clear system state <em>even if the socket is already closed</em>. The
+      obvious implementation ends the call by sending a message and cleaning up when the
+      response arrives, which works perfectly right up until the reason you are ending the
+      call is that there is nothing to send a message to.
+    </p>
+
+    <h2>Recovery needs to know when to stop</h2>
+
+    <p>
+      Once you have automatic reconnection, you have a new class of bug: reconnecting to
+      things you have deliberately left.
+    </p>
+
+    <p>
+      A user leaves a meeting. The app tears down its session. The recovery logic, which is
+      watching the socket and does not know why it closed, dutifully reconnects — and now
+      the user is back in a meeting they left, or holding a connection that keeps something
+      alive on the server that should have been released.
+    </p>
+
+    <p>
+      Reconnection logic needs to distinguish between "this closed and I want it back" and
+      "this closed because I closed it". That sounds obvious written down. It is easy to
+      miss because the two cases look identical at the point where you notice: the socket
+      is closed. The information that distinguishes them lives in your intent, which has to
+      be recorded deliberately rather than inferred.
+    </p>
+
+    <h2>Reconnecting is not the same as being connected</h2>
+
+    <p>
+      The instinct is to treat reconnection as success. The socket is back, so we are fine.
+    </p>
+
+    <p>
+      But a real-time connection carries state, and while it was down the world moved on.
+      Messages arrived. People joined and left. Somebody muted. Simply restoring the
+      transport leaves the app confidently displaying a stale picture, which is arguably
+      worse than showing a disconnected state, because it looks correct.
+    </p>
+
+    <p>
+      So reconnection has to trigger reconciliation — fetch what was missed, re-establish
+      subscriptions, and repair the model before telling the user everything is fine. In
+      practice that means the reconnect path is not "open a socket" but "open a socket,
+      then find out what you missed", and the second half is most of the work.
+    </p>
+
+    <h2>The operating system will suspend you</h2>
+
+    <p>
+      A mobile app does not get to hold a connection open because it would like to. When
+      the app goes to the background the OS suspends it, and a socket you believe is open
+      is in an undefined state of "maybe".
+    </p>
+
+    <p>
+      Leaving it nominally open causes two problems. Other parts of the app cannot cleanly
+      use the transport during the shutdown window, because something is still holding it.
+      And on resume you have a connection that may be alive, may be dead, and cannot be
+      distinguished without trying.
+    </p>
+
+    <p>
+      Closing it properly on backgrounding, and bringing it up on demand — when a call
+      arrives — is more code than leaving it running, and it is the only version that
+      behaves predictably. It also stops the app maintaining a connection permanently for
+      a feature the user might use twice a week, which the battery notices.
+    </p>
+
+    <h2>Smaller things that each cost a day</h2>
+
+    <ul>
+      <li>
+        <strong>Double-tap on join.</strong> Two taps, two join attempts, one confused
+        session. Any button that initiates a session needs to be idempotent, and the place
+        to enforce that is the session layer, not the button.
+      </li>
+      <li>
+        <strong>Decoding everything that arrives.</strong> Attempting to parse every inbound
+        frame into every expected shape produces noisy failures and occasional crashes.
+        Decode only what makes sense for the current state.
+      </li>
+      <li>
+        <strong>Message handling on the main thread.</strong> Fine until a busy meeting, at
+        which point the interface stutters because it is competing with signalling. Moving
+        socket handling off the main thread is the kind of change that fixes complaints
+        nobody could reproduce.
+      </li>
+      <li>
+        <strong>Arriving without credentials.</strong> An inbound invitation can reach a
+        client that has not finished authenticating. If that path assumes a token exists,
+        it crashes — on an incoming call, which is the worst possible moment.
+      </li>
+    </ul>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>When another system holds a copy of your state, every failure path has to
+      reach it.</strong> The OS call interface is not a view you render; it is a second
+      state machine you are responsible for keeping in step, including when the thing you
+      would normally use to update it is the thing that broke.
+    </p>
+
+    <p>
+      <strong>Record intent, do not infer it.</strong> "Socket closed" is not a reason.
+      Recovery logic that cannot tell a failure from a deliberate teardown will eventually
+      do the wrong one, and the bug will present as something reconnecting when it should
+      not — which nobody reads as a reconnection bug.
+    </p>
+
+    <p>
+      <strong>A restored connection is an empty one.</strong> Treat reconnection as the
+      beginning of recovery rather than the end of it, and assume everything you were
+      showing is stale until refreshed.
+    </p>
+
+    <p>
+      <strong>Mobile networks are not unreliable networks — they are hostile ones.</strong>
+      Handovers, suspension, interruption by the cellular stack, and an OS that will kill
+      you for holding resources. Desktop real-time code assumes the connection is normally
+      up. Mobile real-time code has to assume it is normally about to go down, and be
+      boring about it every time.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="presence-is-not-a-boolean.html">Presence is not a boolean</a> &mdash; four inputs, one dot, everybody subscribed</li>
+        <li><a href="the-rewrite-that-was-never-a-project.html">The rewrite that was never a project</a> &mdash; a framework migration nobody scheduled</li>
+        <li><a href="the-store-is-part-of-the-system.html">The store is part of the system</a> &mdash; shipping branded apps through two storefronts</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The hard part was the devices already out there — Nathan Cartmell</title>
+<meta name="description" content="Rewriting a provisioning server from Python to Kotlin, and cutting thousands of desk phones over to it by DNS. The rewrite was the easy half.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The hard part was the devices already out there">
+<meta property="og:description" content="Rewriting a provisioning server from Python to Kotlin, and cutting thousands of desk phones over to it by DNS.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The hard part was the devices already out there</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Earlier this year I rewrote a provisioning server — the thing that tells a desk
+      phone who it is. Python to Kotlin, as part of a wider move onto a single
+      microservice platform. Writing it took about two months. Moving the existing
+      phones onto it took considerably longer to plan than to do, and everything that
+      went wrong afterwards was about the phones, not the server.
+    </p>
+
+    <h2>What a provisioning server does</h2>
+
+    <p>
+      Take a desk phone out of a box, plug it into a network, and it needs to become
+      somebody's extension. It needs SIP credentials, a directory, line keys mapped to
+      colleagues, a dial plan, time zone, firmware policy. Nobody wants to type that in
+      by hand, least of all across a few hundred handsets in an office.
+    </p>
+
+    <p>
+      So the phone asks. On boot it calls a URL, identifies itself — usually by MAC
+      address in the path or the user agent — and the server returns a configuration
+      file. The phone applies it and registers. Then it asks again periodically, so that
+      changes made in a web portal reach the hardware without anyone visiting a desk.
+    </p>
+
+    <p>
+      That is the whole job, and it sounds straightforward until you notice that every
+      manufacturer invented their own format for it. Across six vendors we produce XML
+      in four mutually incompatible shapes, plus two flavours of key-value text — one of
+      which has to be AES-encrypted in transit because that vendor requires it. The
+      directory format differs again, separately from the config format. None of it is
+      standardised and none of it is negotiable, because the parser is in firmware you
+      cannot change.
+    </p>
+
+    <h2>Why rewrite it</h2>
+
+    <p>
+      Not because it was broken. The Python server worked. The reasons were
+      maintainability and consolidation: the wider platform was moving to a single
+      microservice architecture, and the backend business layer was being narrowed to
+      Java 21 and Kotlin, replacing both Python services and older Java ones. A
+      provisioning server sitting outside that in its own runtime, with its own
+      conventions and its own deployment story, is a permanent tax.
+    </p>
+
+    <p>
+      I want to be honest that this is a weaker-sounding reason than "it fell over every
+      Tuesday", and it is the reason most rewrites actually happen. The system was fine.
+      The system was also the last thing in its language, and keeping it meant keeping an
+      entire toolchain alive for one service.
+    </p>
+
+    <h2>Why this one first</h2>
+
+    <p>
+      It also went first on purpose. The provisioning server was the proof of concept for
+      the whole migration — the service that would establish whether the new platform,
+      the new database and the new deployment story actually worked before anything
+      harder was moved onto them.
+    </p>
+
+    <p>
+      It earned that slot by being unusually self-contained, in two senses. The
+      application had few entanglements with the rest of the estate: devices talk to it,
+      it reads configuration, it returns a file. And the dataset was similarly bounded —
+      devices, device types, profiles, directories — rather than sprawling across every
+      other part of the platform the way billing or account data does.
+    </p>
+
+    <p>
+      That matters more than it sounds. A first migration is where you discover that your
+      new schema conventions are wrong, your deployment pipeline has a gap, and your
+      observability doesn't show what you need. You want to discover those things
+      somewhere you can reason about the blast radius. Picking a service with one entry
+      point and a dataset you can hold in your head is what makes the difference between
+      a proof of concept and a hostage situation.
+    </p>
+
+    <p>
+      The single entry point had a second benefit, which is the one the cutover section
+      below rests on: when a service is reached through exactly one hostname, switching
+      to it — and away from it again — is a DNS change and nothing else.
+    </p>
+
+    <h2>Parity, when there is no specification</h2>
+
+    <p>
+      The requirement was not "build a provisioning server". It was "build a
+      provisioning server that behaves <em>exactly</em> like the one thousands of phones
+      are already configured against". That is a much narrower target, and there was no
+      document describing it — the behaviour was whatever the Python did.
+    </p>
+
+    <p>
+      So parity came from two places. First, reading the existing implementation
+      carefully enough to describe it, including the parts that looked like accidents.
+      Second, and more usefully, the internal technical support teams, who had spent
+      years discovering the real behaviour empirically. They knew which models ignored
+      which settings, which needed a reboot rather than a re-provision, and which had
+      quirks that the old server had quietly accommodated years ago for reasons nobody
+      had written down.
+    </p>
+
+    <p>
+      That second source was worth more than the first. Support teams are a specification
+      of last resort for any system old enough to have outlived its documentation, and
+      they are usually under-consulted during a rewrite because they are not engineers.
+    </p>
+
+    <h2>Parity was the floor, not the target</h2>
+
+    <p>
+      Behaving identically was the constraint, not the ambition. A rewrite that reproduces
+      the old system exactly, bugs included, has bought you a new runtime and nothing else.
+      So alongside parity there were three explicit goals.
+    </p>
+
+    <p>
+      <strong>Fix the known bugs.</strong> Every long-lived system accumulates a list of
+      things everyone knows are broken and nobody has scheduled. A rewrite is the one
+      moment those are cheap, because you are already in the code and already re-testing
+      the behaviour around them.
+    </p>
+
+    <p>
+      <strong>Shrink the difference between manufacturers.</strong> The old code had
+      diverged per vendor further than the vendors themselves required — six paths that
+      differed not only where the formats genuinely differ, but also in structure, naming
+      and approach, because each had been written or extended at a different time by
+      different people. Collapsing that so the vendor-specific part is only the part that
+      is genuinely vendor-specific is what makes adding a seventh manufacturer a known
+      quantity rather than an adventure.
+    </p>
+
+    <p>
+      <strong>Make it readable and consistent.</strong> Standard project layout, enforced
+      formatting, static analysis, documented public surfaces. Unglamorous, and the main
+      thing that decides whether the next person can work on it without asking me.
+    </p>
+
+    <p>
+      These are worth stating because "we rewrote it and it behaves the same" is a hard
+      sell, and an incomplete description of what actually happened. The behaviour is the
+      same where it was right and deliberately different where it was not.
+    </p>
+
+    <h2>The data model got changed at the same time</h2>
+
+    <p>
+      The new platform sits on a different database, so the schema moved too — integer
+      primary keys to UUIDs, and a single very wide device table split into separate
+      concerns for identity, configuration and expansion modules. History gained a
+      retention policy rather than growing forever.
+    </p>
+
+    <p>
+      Doing this at the same time as the rewrite is arguably one change too many. I would
+      still do it, because the alternative is porting a schema you already know is wrong
+      and then migrating it later under more constraints, but it did mean that when
+      something misbehaved, the surface area of "what did we change" was large.
+    </p>
+
+    <h2>Cutting over</h2>
+
+    <p>
+      The phones point at a hostname. That is the whole mechanism: whoever answers that
+      hostname is the provisioning server. So the cutover was a DNS change, and the
+      rollback was the same DNS change backwards.
+    </p>
+
+    <p>
+      That sounds glib, so the preparation is worth spelling out, because it is where
+      the actual work was:
+    </p>
+
+    <ul>
+      <li>
+        Roll-forward <em>and roll-back</em> were rehearsed end to end in a preview
+        environment, six days before the real thing. Rehearsing the rollback matters
+        more than rehearsing the rollout — you will be doing it under pressure.
+      </li>
+      <li>
+        The TTL on the relevant DNS record was dropped well in advance, so that a
+        rollback would propagate in minutes rather than hours. This is the single
+        cheapest thing you can do to make a DNS cutover safe, and it has to be done
+        days early to be any use.
+      </li>
+      <li>
+        Load testing on the test environment, to confirm the new service scaled rather
+        than merely worked.
+      </li>
+      <li>
+        Monitoring and alerting configured <em>before</em> go-live, not after. You cannot
+        assess a cutover you cannot see.
+      </li>
+      <li>
+        Environment variables audited and diffed, because a surprising share of
+        deployment incidents are a value that was right in staging and wrong in
+        production.
+      </li>
+    </ul>
+
+    <p>
+      The switch itself was done out of hours, one brand at a time, with an expected
+      worst case of ten to fifteen minutes during which new device registrations would
+      fail. Calls do not traverse the provisioning server, so live traffic was never at
+      risk — a fact worth establishing early, because it changes how frightened everyone
+      needs to be.
+    </p>
+
+    <h2>The risk register got the category right</h2>
+
+    <p>
+      Before the switch I wrote down what could go wrong, ranked. Reading it back now,
+      what stands out is not any individual item but the pattern: <strong>every
+      medium-rated risk was about handover behaviour for devices that already
+      existed.</strong> Hot desking failing for phones already logged in. Do-not-disturb
+      not syncing for phones that had a state to sync. Auto-updates not applying to
+      devices configured by the old system. Directory updates not reaching existing
+      handsets.
+    </p>
+
+    <p>
+      Nothing about new devices was rated above low, and that turned out to be right.
+      New provisions were fine, essentially immediately. A phone with no history is
+      easy — it asks, you answer, there is no previous answer to be consistent with.
+    </p>
+
+    <p>
+      The estate is the hard part. Not because the old devices are different, but because
+      they are already in a state that the old server put them in, and the new server has
+      to pick up a conversation it was not present for.
+    </p>
+
+    <p>
+      One property of the domain made all of this far more tolerable than it sounds, and
+      it is worth being explicit about because it shaped every rating on that list: a
+      phone that fails to re-provision does not stop working. It keeps the configuration
+      it already has and carries on making and receiving calls. What it loses is
+      <em>updates</em> — a directory change, a new line key, a setting toggled in the
+      portal — until whatever is wrong is fixed.
+    </p>
+
+    <p>
+      And when it is fixed, nothing needs to be done to the handset. It polls again on its
+      own schedule, gets the config it should have had, and applies it. The failure mode
+      is degraded rather than down, and the recovery is automatic.
+    </p>
+
+    <p>
+      That is why nothing on the register is rated critical. It is also why the one thing
+      genuinely capable of being critical — a bad configuration being applied, rather than
+      no configuration being applied — was called out separately as the low-probability,
+      high-consequence case. Failing to answer is survivable. Answering wrongly is not, in
+      the same way, because the phone will believe you.
+    </p>
+
+    <h2>What actually happened</h2>
+
+    <p>
+      Five days after cutover, directories stopped working across an entire
+      manufacturer's handset range.
+    </p>
+
+    <p>
+      It was not in the risk register as a mechanism, but it was there as a category —
+      "directory updates not applying" was one of the medium risks. The category was
+      right and the cause was nothing I had imagined: a whitespace cleanup, valid XML
+      before and after, and firmware that read responses line-by-line into a fixed-size
+      buffer. I have written that one up separately, because it deserves its own space.
+    </p>
+
+    <p>
+      The week that followed produced four point releases in four days and a full rebuild
+      of the service's test suite. That is not a sign the cutover failed — it is what the
+      week after a cutover looks like when you are finding the things that only the real
+      estate can tell you.
+    </p>
+
+    <h2>What I would keep</h2>
+
+    <p>
+      <strong>Rehearse the rollback, not just the rollout.</strong> We practised the
+      reverse DNS change in preview before we ever made the forward one. It was never
+      needed, which is the point — the confidence to leave it alone came from knowing it
+      worked.
+    </p>
+
+    <p>
+      <strong>Drop the TTL days early.</strong> A rollback mechanism that takes four
+      hours to take effect is not a rollback mechanism.
+    </p>
+
+    <p>
+      <strong>Ask support what the system actually does.</strong> Where documentation has
+      rotted, the people answering the phones hold the specification. They will not hand
+      it to you in the form you want, but they have it.
+    </p>
+
+    <p>
+      <strong>Expect the installed base to be the problem.</strong> Greenfield behaviour
+      is easy to verify and will mostly be fine. Everything difficult lives in the gap
+      between what the old system left behind and what the new one expects to find.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

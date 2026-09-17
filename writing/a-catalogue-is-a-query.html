@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A catalogue is a query — Nathan Cartmell</title>
+<meta name="description" content="Selling hardware, numbers and contract addons through partners. What you can order depends on who you are, what you already have, and how long you signed up for.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="A catalogue is a query">
+<meta property="og:description" content="What you can order depends on who you are, what you already have, and how long you signed up for.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>A catalogue is a query</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      There is a shop inside our platform. Partners order desk phones, headsets and DECT
+      bases; they order phone numbers; they add contract addons to existing services. It
+      looks like e-commerce and it is nearly nothing like e-commerce, for one reason: there
+      is no such thing as the catalogue.
+    </p>
+
+    <p>
+      What can be ordered depends on who is asking, what they already have, what contract
+      they are on, and how much of that contract is left. Two partners looking at the same
+      page legitimately see different products at different prices with different available
+      terms — and neither view is the real one.
+    </p>
+
+    <h2>Availability is per-partner</h2>
+
+    <p>
+      Resellers sell our platform as their own, and they do not all sell the same thing.
+      Some are configured to offer a subset of hardware; some deliberately do not offer
+      certain models because they do not want to support them; some have commercial
+      arrangements that make one manufacturer preferable.
+    </p>
+
+    <p>
+      So orderable hardware is restrictable per reseller, which means every catalogue
+      question is scoped to a viewer. That sounds like a filter and it is really a
+      projection: you cannot cache "the product list", because there isn't one. You can cache
+      a product list <em>for a partner</em>, and now cache invalidation has a new dimension.
+    </p>
+
+    <p>
+      The same is true of the presentation layer — notes, images, descriptions and defaults
+      per store — which means the shop is not one shop rendered with a theme, it is many
+      shops sharing an engine.
+    </p>
+
+    <h2>Pricing is a period, not a number</h2>
+
+    <p>
+      The thing I would tell anyone building this: prices are not values on products, they
+      are values with validity windows, and you need to ask explicitly whether current
+      pricing exists at all.
+    </p>
+
+    <p>
+      That last part is not defensive programming. A product can be listed, real, and
+      orderable in principle while having no valid price right now — because a pricing period
+      lapsed, a new one has not been published, or a variation was added without commercial
+      sign-off. The honest answer to "how much is this?" is sometimes "there is no current
+      price", and a system that assumes a price always exists will confidently show a wrong
+      one or a zero.
+    </p>
+
+    <p>
+      Products also have variations — the same handset in different configurations — and
+      pricing attaches to the variation, not the product. Conflating them is the kind of
+      mistake that is cheap to fix on day one and involves a data migration on day four
+      hundred.
+    </p>
+
+    <h2>Addons have to fit inside the contract</h2>
+
+    <p>
+      This is the constraint that makes the domain genuinely interesting rather than merely
+      fiddly.
+    </p>
+
+    <p>
+      An addon bought against an existing service has a term. So does the service. If a
+      customer is eighteen months into a three-year contract and orders an addon with a
+      two-year term, the addon outlives the thing it is attached to. That is not a validation
+      error in any obvious sense — both objects are individually valid — but it is
+      commercially incoherent and somebody will eventually have to unpick it by hand.
+    </p>
+
+    <p>
+      Term matching means the ordering system has to understand the customer's existing
+      commitments well enough to constrain what it offers. The catalogue query now depends
+      not just on who is asking but on the remaining life of what they already bought.
+    </p>
+
+    <p>
+      You cannot bolt this on at checkout. By the time someone has chosen, it is too late to
+      tell them the thing they chose was never available to them — you have to not offer it.
+    </p>
+
+    <h2>An order is a workflow, not a transaction</h2>
+
+    <p>
+      When an order is placed, several different things begin, on different timescales, with
+      different failure modes.
+    </p>
+
+    <p>
+      Hardware has to be picked and shipped, physically, by people. Numbers have to be
+      allocated from a range and configured. Service has to be provisioned. Billing has to be
+      set up against the right contract terms. Somebody in operations may need to do
+      something manually, so a ticket is raised with the order details attached.
+    </p>
+
+    <p>
+      None of this is atomic and it should not pretend to be. Hardware can be out of stock
+      while numbers allocate fine. A number range can be exhausted while the handset ships
+      tomorrow. The order is a long-lived object with per-item progress, and the customer
+      needs to see that honestly rather than watching a spinner that means four different
+      things.
+    </p>
+
+    <p>
+      We publish order events onto a message bus so the downstream pieces can proceed
+      independently — which is the right shape, and it means the order's own record of truth
+      has to be assembled from things that completed at different times.
+    </p>
+
+    <h2>The partner is not the customer</h2>
+
+    <p>
+      One recurring subtlety: there are two parties on every order and they need different
+      things.
+    </p>
+
+    <p>
+      The end customer receives the hardware and uses the service. The partner is who we have
+      the commercial relationship with, who gets billed, and who needs to be contactable when
+      something goes wrong. Order records carry both, and getting them the wrong way round
+      produces the sort of error where a delivery notification goes to the wrong company
+      entirely.
+    </p>
+
+    <p>
+      It also means "where does this go?" and "who pays for this?" are separate questions
+      with separate answers, and the data model has to keep them apart even though on most
+      orders they point at the same place.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>A catalogue is a query, not a table.</strong> As soon as availability depends
+      on the viewer, stop thinking of it as a list you filter and start thinking of it as a
+      question you answer per request. It changes how you cache, how you test, and what
+      "the product list" even means.
+    </p>
+
+    <p>
+      <strong>Prices need validity, and "no price" is a valid answer.</strong> Model pricing
+      as periods from the start, and make the absence of a current price a state the system
+      can express rather than a case it falls over on.
+    </p>
+
+    <p>
+      <strong>Constrain at selection, not at checkout.</strong> Any rule about what somebody
+      is allowed to buy has to shape the options, not reject the choice. Rejecting late is a
+      terrible experience and usually means the rule lives in the wrong layer.
+    </p>
+
+    <p>
+      <strong>Orders are long-lived objects with partial progress.</strong> Anything
+      involving physical goods, external allocation and human steps will be partially
+      complete for days. Designing that as a transaction with a status field is the mistake
+      you pay for in support tickets.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a> &mdash; maintaining the portal a company runs on</li>
+        <li><a href="one-person-several-accounts.html">One person, several accounts</a> &mdash; SSO when identity isn't one-to-one</li>
+        <li><a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a> &mdash; retrofitting granular access control</li>
+        <li><a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a> &mdash; building call reporting end to end</li>
+        <li><a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a> &mdash; replacing the helpdesk support lives in</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

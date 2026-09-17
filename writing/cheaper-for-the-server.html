@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cheaper for the server, dearer for the phone — Nathan Cartmell</title>
+<meta name="description" content="Splitting a monolith stopped any one service holding a whole directory in memory. It also made large directories slow to assemble — and the slowest client sets the limit.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/cheaper-for-the-server.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cheaper for the server, dearer for the phone">
+<meta property="og:description" content="Splitting a monolith stopped any one service holding a whole directory in memory. The cost moved to clients we don't control.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/cheaper-for-the-server.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Cheaper for the server, dearer for the phone</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      A desk phone's directory arrives as a file. The phone asks for it, the server builds
+      it, the phone downloads and stores the whole thing. That model is simple and it works
+      right up until somebody has a directory with six thousand people in it.
+    </p>
+
+    <p>
+      This is a story about making something meaningfully better for the server and, in the
+      same change, meaningfully worse for a handful of devices — and about the fact that
+      once you have done that, the least capable client in the estate decides where your
+      limit is.
+    </p>
+
+    <h2>What the split changed</h2>
+
+    <p>
+      In the old architecture the provisioning server and the directory data lived
+      together. Building a directory meant querying a database the same process could
+      reach, loading the contacts, and rendering them. One query, one in-memory list, done.
+    </p>
+
+    <p>
+      The rewrite split those apart. Directory data belongs to a different service now, and
+      the provisioning server asks for it over gRPC, a page at a time, assembling the
+      result as it goes.
+    </p>
+
+    <p>
+      That is a genuine improvement at the platform level, and not for abstract
+      architectural-purity reasons. The old shape meant a single process could be asked to
+      hold an entire directory in memory, and with enough directories being built at once
+      by enough accounts, the worst case is a service holding an enormous number of contact
+      records simultaneously. Paging bounds that. No single request can balloon, and memory
+      use stops being a function of your largest customer.
+    </p>
+
+    <h2>What it cost</h2>
+
+    <p>
+      Every page is now a network round trip to another service, with serialisation at both
+      ends, instead of a row read from a local result set. For a small directory that is
+      irrelevant — a page or two, a few milliseconds. For a six-thousand-contact directory
+      it is a lot of round trips, and the time to assemble the response scales with the
+      size of the directory in a way it previously did not.
+    </p>
+
+    <p>
+      The obvious mitigation helps and we did it: the directory build fetches two
+      independent things — the account's own users and the directory's contacts — and those
+      were being fetched one after the other. Running them concurrently rather than
+      sequentially takes a chunk out of the total.
+    </p>
+
+    <p>
+      But that is a constant-factor improvement to something that grows linearly. It buys
+      headroom. It does not change the shape of the curve.
+    </p>
+
+    <h2>The slowest client sets the limit</h2>
+
+    <p>
+      Eventually a customer with about six thousand contacts reported that their directory
+      would not load. The detail that makes this worth writing about is that it failed on
+      <em>one model</em>. Other handsets from the same manufacturer, on the same account,
+      with the same configuration and the same directory, were fine.
+    </p>
+
+    <p>
+      Nothing was wrong with the server's response. It was correct, complete, and
+      eventually delivered. The failing model simply gave up waiting sooner than its
+      siblings did — a shorter timeout in firmware we do not control and cannot configure.
+    </p>
+
+    <p>
+      That is the uncomfortable part of trading latency for resource efficiency when your
+      clients are devices. If you make a server-side saving and pay for it in response
+      time, you have not removed the cost. You have moved it onto the clients, and you now
+      inherit the tolerance of the least patient one. Every model, every firmware revision,
+      every timeout somebody chose years ago is now part of your performance budget.
+    </p>
+
+    <p>
+      You cannot fix that by being faster, because you do not know what the limit is. It is
+      not published. You discover it when a customer large enough to cross it complains.
+    </p>
+
+    <h2>Stop sending the directory</h2>
+
+    <p>
+      The fix was not a faster download. It was to stop downloading.
+    </p>
+
+    <p>
+      Most of these handsets also speak LDAP. Instead of fetching a file containing every
+      contact, the phone can open a connection and search: the user types three letters,
+      the phone sends a query, the server returns the matches. So the provisioning server
+      gained an embedded LDAP listener that serves a virtual directory backed by the same
+      contact data.
+    </p>
+
+    <p>
+      The property that matters is that <strong>the response size is now bounded by
+      construction</strong>. A search returns at most a fixed number of entries — a few
+      dozen — regardless of how many contacts exist behind it and regardless of what the
+      phone asks for. A six-thousand-contact directory and a sixty-contact directory
+      produce responses of the same order. The size of the directory stops being a variable
+      in whether the feature works.
+    </p>
+
+    <p>
+      Queries are prefix matches rather than substring searches, which keeps them
+      index-friendly and matches how people actually search a phone directory — you type
+      the start of a name, not the middle of one.
+    </p>
+
+    <p>
+      Putting the listener inside the provisioning server rather than standing up a
+      separate directory service was deliberate. That service already knows how to identify
+      a device, work out which account it belongs to and decide which directory it should
+      be allowed to see. All of that is needed to answer an LDAP search safely, and
+      duplicating it elsewhere would have meant two implementations of the same access
+      rules.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Efficiency gains that cost latency are transfers, not savings.</strong> The
+      work did not disappear when we bounded the server's memory use; it turned into
+      waiting, and the waiting is done by somebody else. That is usually a good trade — but
+      it is a trade, and it is worth naming as one rather than recording it as a pure win.
+    </p>
+
+    <p>
+      <strong>Your timeout budget is set by clients you cannot see.</strong> With browsers
+      you can measure and iterate. With an estate of hardware spanning years of firmware,
+      the binding constraint is undocumented, varies by model, and only reveals itself in
+      production at a customer large enough to hit it.
+    </p>
+
+    <p>
+      <strong>When the size of the payload is the problem, optimise the interaction, not
+      the payload.</strong> We could have kept making directory assembly faster — more
+      parallelism, caching, bigger pages — and every increment would have moved the failure
+      threshold slightly further out while leaving the shape of the problem untouched.
+      Switching from "send everything" to "answer questions" removes the variable instead
+      of shrinking it.
+    </p>
+
+    <p>
+      <strong>Two identical-looking symptoms, six months apart, had nothing in common.</strong>
+      Earlier in the year, large directories failed on specific handset models because of
+      <a href="whitespace-was-load-bearing.html">a whitespace change and a fixed-size line
+      buffer</a>. This time, large directories failed on a specific handset model because
+      of assembly latency and a firmware timeout. Same shape of report, same class of
+      customer, entirely unrelated causes. It is a good reminder not to let a previous
+      diagnosis do your thinking for you.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

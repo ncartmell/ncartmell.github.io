@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ncartmell.co.uk/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://ncartmell.co.uk/projects/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/six-vendors-one-api.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/cheaper-for-the-server.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/writing-to-both.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/porting-a-number.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/someone-elses-phone-bill.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/one-person-several-accounts.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+</urlset>

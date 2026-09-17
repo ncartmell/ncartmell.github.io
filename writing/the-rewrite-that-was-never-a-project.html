@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The rewrite that was never a project — Nathan Cartmell</title>
+<meta name="description" content="Building a chat client inside a phone app over three years, and moving it from UIKit to SwiftUI in a single commit nobody scheduled.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The rewrite that was never a project">
+<meta property="og:description" content="Building a chat client over three years, and migrating it from UIKit to SwiftUI without anyone scheduling it.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>The rewrite that was never a project</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      I went looking through three years of commits recently and found something that
+      surprised me. The chat system in our iOS app moved from UIKit to SwiftUI. I remember
+      doing it. It is not in the history — or rather, it is in the history as exactly one
+      commit, in November 2023, sitting between a fix to message cell padding and some work
+      on chat muting.
+    </p>
+
+    <p>
+      There are 383 commits touching chat across those three years. One of them mentions
+      SwiftUI. The framework migration that I would describe in conversation as a piece of
+      work was, in the record, a Tuesday.
+    </p>
+
+    <h2>What chat actually turned into</h2>
+
+    <p>
+      Worth establishing the scale first, because the point does not land otherwise.
+    </p>
+
+    <p>
+      The app did not set out to contain a chat product. It was a softphone: make calls,
+      see colleagues, look things up. Chat began as messaging attached to contacts, and
+      then over three years accumulated threaded replies, quoted messages, reactions,
+      pinning, read and unread state, mark-as-unread that clears itself when a new message
+      arrives, muting with global settings, system messages, embedded video, image and video
+      capture, file attachments, URL parsing, user tagging, markdown rendering, group
+      creation, archiving, search, and localised date headers.
+    </p>
+
+    <p>
+      That is a chat client. Nobody ever wrote down that we were building one. Each piece
+      arrived as a reasonable request — the desktop client has reactions, customers expect
+      threads, somebody needs to mute a noisy group — and each was a couple of weeks at
+      most.
+    </p>
+
+    <h2>Why the migration has no ceremony</h2>
+
+    <p>
+      The framework change happened the same way, and looking back I think that was
+      correct rather than sloppy.
+    </p>
+
+    <p>
+      The honest version is that SwiftUI arrived where it was easier, which was the newer
+      and more self-contained views, and did not arrive where it was not. The commit that
+      names it describes switching the chat view to act as a SwiftUI view with the UIKit
+      side as delegate — which is the hinge, not the whole thing. Around it, incrementally,
+      new screens were written in the new framework and old ones were left alone until
+      something needed changing anyway.
+    </p>
+
+    <p>
+      Nobody proposed a migration. Nobody estimated one. There was no ticket called
+      "SwiftUI migration" because there was never a moment where stopping feature work to
+      change frameworks would have been the obvious call — and if I had proposed it, the
+      honest business answer would have been no.
+    </p>
+
+    <h2>The advantage of not having a project</h2>
+
+    <p>
+      Framework migrations proposed as projects have a characteristic failure. They are
+      large, they deliver nothing visible, they are scoped against a codebase that keeps
+      changing underneath them, and they get paused halfway when something urgent happens —
+      leaving you with two frameworks and no benefit, which is worse than either.
+    </p>
+
+    <p>
+      Doing it opportunistically avoids most of that. Every screen you touch anyway is a
+      chance to move it. You are never more than one commit from a shippable state. If the
+      effort stops, you keep whatever you converted and nothing is half-done. And the
+      decision is made per screen with real information — is this view actually easier in
+      the new framework? — rather than once, in advance, as an article of faith.
+    </p>
+
+    <p>
+      The interop is what makes it possible, and it is also the thing that gets undersold.
+      Being able to host one framework inside the other, in both directions, is what turns
+      a migration from a cliff into a ramp. A lot of the real work is in the seams: making
+      a view behave correctly when its parent belongs to the other world, and keeping state
+      ownership clear across the boundary so that two frameworks are not both convinced they
+      are managing the same thing.
+    </p>
+
+    <h2>The cost of not having a project</h2>
+
+    <p>
+      I do not want to be glib about it, because there are real downsides and I lived with
+      them.
+    </p>
+
+    <p>
+      <strong>You are in both frameworks for years.</strong> Not months. Every developer
+      needs to be fluent in two ways of building a screen, and every new piece of work
+      starts with a small decision about which world it belongs in. That tax is permanent
+      until the last old screen is gone, and the last old screens are the ones nobody
+      touches, which is why they are still old.
+    </p>
+
+    <p>
+      <strong>It is invisible.</strong> There is no artefact. No design doc, no before-and-after,
+      nothing to point at in a review. I only reconstructed the shape of it by searching
+      the commit history for this piece, and if you had asked me last month when it
+      happened I would have guessed wrong by about six months.
+    </p>
+
+    <p>
+      <strong>Inconsistency is the default.</strong> Two frameworks means two sets of
+      conventions for spacing, navigation, state, and animation, and they diverge silently
+      unless someone is deliberately holding them together. A meaningful share of the chat
+      commits are exactly that — padding brought back in line, backgrounds matched to the
+      desktop client, an indicator that did not update because the view did not know it
+      should.
+    </p>
+
+    <h2>What I would tell myself</h2>
+
+    <p>
+      <strong>Incremental migration is a legitimate strategy, not a failure to plan.</strong>
+      For a framework change in a product under active development, it is usually the only
+      one that finishes. The version that gets proposed, scoped and paused is the one that
+      leaves you worst off.
+    </p>
+
+    <p>
+      <strong>But write down that you are doing it.</strong> This is the bit I would change.
+      Not a project — a paragraph. What we are moving to, what triggers a conversion, what
+      we are deliberately not converting. It costs nothing and it turns an accumulation of
+      individual judgements into a thing the team is doing on purpose. It would also have
+      meant the next person did not have to reverse-engineer the intent from a commit about
+      view delegates.
+    </p>
+
+    <p>
+      <strong>Watch what accretes.</strong> The more interesting finding was not the
+      framework change. It was that a softphone quietly grew a full chat client, one
+      reasonable request at a time, and nobody ever stood back and said that out loud.
+      Every one of those decisions was right on its own and the sum of them was a second
+      product inside the first, maintained as though it were a feature.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-socket-is-not-the-call.html">The socket is not the call</a> &mdash; when the transport dies but the OS disagrees</li>
+        <li><a href="presence-is-not-a-boolean.html">Presence is not a boolean</a> &mdash; four inputs, one dot, everybody subscribed</li>
+        <li><a href="the-store-is-part-of-the-system.html">The store is part of the system</a> &mdash; shipping branded apps through two storefronts</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

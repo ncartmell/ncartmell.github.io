@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Writing to both — Nathan Cartmell</title>
+<meta name="description" content="You cannot move a live platform to a new database in one step. Dual writes are how you make the migration boring — and most of the work is in the failure handling.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/writing-to-both.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Writing to both">
+<meta property="og:description" content="Dual writes are how you move a live platform between data models without a big bang. The interesting part is what happens when the second write fails.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/writing-to-both.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Writing to both</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Moving one service to a new database is a project. Moving a platform is a programme,
+      and it cannot happen in one step, because the services do not all move on the same
+      day and the old ones keep running while the new ones appear around them.
+    </p>
+
+    <p>
+      For a while — months, realistically — the same business facts have to exist in two
+      data models at once. Dual writing is the mechanism for that, and although the idea is
+      simple, almost everything interesting is in the details of how it fails.
+    </p>
+
+    <h2>The idea</h2>
+
+    <p>
+      Every write that lands in the old model also gets written to the new one. Reads keep
+      coming from the old model until you are confident the new one is correct, then you
+      switch reads over, then eventually you stop writing to the old one.
+    </p>
+
+    <p>
+      The value is that it decouples the schema migration from the service migration.
+      Services move when they are ready rather than when the database is, and the cutover
+      for any given read path becomes a small, reversible decision rather than a date in a
+      calendar with everybody watching.
+    </p>
+
+    <h2>It is a translation, not a copy</h2>
+
+    <p>
+      The thing that makes this more than a `save()` call twice is that the two models are
+      not the same shape. That was the whole point of the new one.
+    </p>
+
+    <p>
+      Integer primary keys became UUIDs. Wide tables were split into separate concerns.
+      Timestamps changed type. Fields that were nullable for historical reasons acquired
+      constraints. A row in the old model does not correspond to a row in the new one —
+      it corresponds to a couple of rows, with identifiers that have to be resolved rather
+      than copied.
+    </p>
+
+    <p>
+      So each entity needs a mapper: a deliberate, tested translation between the legacy
+      shape and the new one. That mapper is where the migration's real risk lives, and
+      giving it its own class and its own tests — rather than letting it sprawl through
+      the persistence layer — is the single most useful structural decision in the whole
+      arrangement.
+    </p>
+
+    <h2>The second write must never break the first</h2>
+
+    <p>
+      Here is the constraint that shapes everything else: <strong>during the migration,
+      the old model is still the truth.</strong> Customers are served from it. If the new
+      model is unreachable, misconfigured, or rejects a row because a constraint is
+      stricter than it used to be, that must not fail the operation the user asked for.
+    </p>
+
+    <p>
+      Which means the secondary write is best-effort, and its failures need somewhere to
+      go that is not an exception propagating back to the caller. A dedicated failure
+      service — at first, simply recording what failed and why — turns a class of incident
+      into a queue of things to investigate.
+    </p>
+
+    <p>
+      This is the part people underestimate. A naive dual write wraps both writes in one
+      transaction, feels correct, and converts every problem in the new stack into an
+      outage in the old one. You have taken a system that worked and made its availability
+      the product of two systems, one of which is by definition not finished.
+    </p>
+
+    <h2>Modes, not a switch</h2>
+
+    <p>
+      Dual writing is not on or off. Different entities are at different stages at any
+      moment, so it needs to be configurable per entity: not yet, writing to both, reading
+      from the new one, finished.
+    </p>
+
+    <p>
+      Making that a property of each entity rather than a global flag is what lets the
+      migration proceed as a series of small independent decisions. One entity can be
+      fully cut over while another has not started, and a problem with one does not hold
+      up the rest.
+    </p>
+
+    <p>
+      In practice that means a registry of per-entity writers, configuration that selects
+      the mode, and enough wiring that adding a new entity to the scheme is a small,
+      obvious piece of work rather than a redesign. We started the framework with a couple
+      of billing entities, deliberately — real enough to prove the approach, small enough
+      that being wrong was cheap.
+    </p>
+
+    <h2>Drift is the part you cannot skip</h2>
+
+    <p>
+      Dual writing keeps the two models in step going forward. It does nothing about
+      records written before you started, and nothing about the ones where the secondary
+      write quietly failed.
+    </p>
+
+    <p>
+      So the scheme is incomplete without two more things: a <strong>backfill</strong> to
+      migrate what already existed, and a <strong>drift check</strong> that compares the
+      two models and reports where they disagree. Until the drift check exists and reads
+      clean, "the new model is correct" is a belief rather than a measurement — and the
+      decision to switch reads over is exactly the decision you should not be making on a
+      belief.
+    </p>
+
+    <p>
+      We shipped the framework first and deferred both, which I think is right ordering:
+      the drift check needs something to check, and building it against a real dual-write
+      path is easier than designing it in the abstract. But it does mean the framework
+      landing is the start of the work rather than the end of it, and it is worth being
+      honest with yourself about that rather than treating the merge as the milestone.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>The mapper is the migration.</strong> Everything else — modes, registries,
+      configuration — is scaffolding. The translation between old and new shapes is where
+      correctness is won or lost, and it deserves to be an explicit, individually tested
+      unit rather than logic smeared across a repository class.
+    </p>
+
+    <p>
+      <strong>Best-effort means having a plan for the effort failing.</strong> Swallowing
+      secondary write failures silently is as bad as letting them propagate. The point is
+      not that they do not matter — it is that they matter <em>later</em>, to you, rather
+      than <em>now</em>, to the customer.
+    </p>
+
+    <p>
+      <strong>Per-entity state beats a global switch.</strong> A migration that has to move
+      as one unit is a migration that moves on its slowest component. Independent
+      progression is what keeps it from becoming a big bang wearing a disguise.
+    </p>
+
+    <p>
+      <strong>You do not know the models agree until you have measured it.</strong> Dual
+      writing feels like it guarantees consistency. It guarantees an attempt at
+      consistency. The difference between those two is precisely the set of rows you will
+      find out about later, and a drift check is how you choose when.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

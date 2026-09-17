@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>One person, several accounts — Nathan Cartmell</title>
+<meta name="description" content="Single sign-on assumes an identity maps to an account. In a white-label platform it often maps to four, and the login flow has to cope before the user has proved anything.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/one-person-several-accounts.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="One person, several accounts">
+<meta property="og:description" content="SSO assumes an identity maps to an account. Often it maps to four — and you have to handle that before the user has proved who they are.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/one-person-several-accounts.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>One person, several accounts</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Adding single sign-on looks like a contained piece of work. Wire up a provider,
+      exchange a token, find the user, issue a session. Two providers and you are done.
+    </p>
+
+    <p>
+      The assumption hiding in that sentence is <em>find the user</em> — singular. It is
+      the assumption that breaks, and everything interesting follows from it breaking.
+    </p>
+
+    <h2>The identity is not the account</h2>
+
+    <p>
+      On a white-label platform, one person can legitimately exist several times. They work
+      for a business that is a customer of a reseller. They also consult for another
+      business on the same platform under a different brand. Somebody set them up twice
+      years ago with the same work email. They are a partner administrator as well as a
+      user of their own system.
+    </p>
+
+    <p>
+      None of these are data quality problems to be cleaned up. They are the product
+      working correctly. So "the user with this email address" is not a lookup that returns
+      one row, and a login flow built on the assumption that it does will either pick one
+      arbitrarily or fail.
+    </p>
+
+    <p>
+      Both failure modes are bad in a specific way: the user has already authenticated
+      successfully with their identity provider. From their point of view they logged in
+      and your product broke.
+    </p>
+
+    <h2>The awkward middle state</h2>
+
+    <p>
+      Handling this means the login response cannot always be a session. Sometimes it has
+      to be "you are authenticated, and there are four of you — which one?".
+    </p>
+
+    <p>
+      That is a state most auth flows do not have a shape for. The user has proved who they
+      are but has no session yet, because a session belongs to an account and the account
+      is not yet chosen. You need something scoped enough to let them choose, and nothing
+      more — it must not be usable as a session, and it must expire quickly.
+    </p>
+
+    <p>
+      Getting there meant a new version of the login command specifically to carry a
+      multi-account response, rather than bending the existing single-account one. That was
+      the right call. The old shape said "here is your session"; the new shape says "here is
+      what happened, which might be a session and might be a choice". Those are different
+      contracts, and versioning was cheaper than making one response mean two things.
+    </p>
+
+    <p>
+      It also has to work on clients you do not control the release cycle of, which is why
+      the request carries a version — the server needs to know whether the caller can cope
+      with being handed a choice, and fall back to the old behaviour when it cannot.
+    </p>
+
+    <h2>Every provider is different in a small way</h2>
+
+    <p>
+      We support more than one identity provider, and the sense in which they are "the same
+      protocol" is thinner than the specifications suggest.
+    </p>
+
+    <p>
+      They differ in what they will tell you about a person and when. One gives you an email
+      on every sign-in; another may not, depending on choices the user made the first time
+      they ever used it, possibly years ago on a different device. They differ in how they
+      represent a stable identifier, which matters enormously because that identifier is
+      what you key on — and keying on email is the mistake that seems fine until somebody
+      changes their name.
+    </p>
+
+    <p>
+      They differ most in how they fail. One returns a structured error; another returns
+      something generic that could mean several things. Error handling written carefully for
+      one provider does not transfer, and the second integration is not half the work of the
+      first — it is most of the work again, in a different shape.
+    </p>
+
+    <p>
+      They also come with platform obligations. Adding one meant declaring keychain
+      entitlements; another required a privacy manifest under new store rules. Those are not
+      auth problems, but they are in the critical path of shipping auth.
+    </p>
+
+    <h2>Second factors belong to the organisation</h2>
+
+    <p>
+      Two-factor authentication starts as a user preference and does not stay one. Businesses
+      want it mandatory, which means it is an account-level policy that overrides individual
+      choice, administered by someone who is not the user.
+    </p>
+
+    <p>
+      That inverts the model. It is no longer "does this user have 2FA enabled" but "does
+      this user have it, or is it required of them" — and the enforcement has to apply to
+      people who already have sessions issued under the old policy, which is a migration
+      rather than a flag.
+    </p>
+
+    <p>
+      Then there is the part nobody puts in a design document: verifying a code takes a
+      second or two, during which the interface must show something, and switching between
+      code types has to not look broken. A meaningful share of the work on 2FA was loading
+      states and transitions, because a login screen that appears frozen is a login screen
+      people abandon.
+    </p>
+
+    <p>
+      And "remember me" is a decision about how long you trade convenience against risk. We
+      landed on short-lived sessions at registration and a fortnight for established ones —
+      numbers that are defensible rather than derived, which is true of most such numbers.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Authentication and account selection are different steps.</strong> Most
+      systems can conflate them because the mapping is one-to-one. As soon as it is not,
+      you need an intermediate state — authenticated, unresolved — and retrofitting that is
+      harder than designing it in.
+    </p>
+
+    <p>
+      <strong>Version the response, not just the endpoint.</strong> When a response can now
+      mean something structurally new, adding a field to the old shape asks every existing
+      client to understand something it was not written for. A new command with an explicit
+      version is more work up front and far less coordination later.
+    </p>
+
+    <p>
+      <strong>Never key identity on email.</strong> It is the obvious join column and it is
+      mutable, reusable, and sometimes absent. Every provider offers a stable identifier
+      precisely because email is not one.
+    </p>
+
+    <p>
+      <strong>Security controls become organisational policy.</strong> Anything you build as
+      a user preference in an enterprise product will eventually need to be enforceable by
+      an administrator over that user's objection. Designing it as a preference with an
+      override bolted on later is measurably worse than assuming policy from the start.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a> &mdash; maintaining the portal a company runs on</li>
+        <li><a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a> &mdash; retrofitting granular access control</li>
+        <li><a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a> &mdash; building call reporting end to end</li>
+        <li><a href="a-catalogue-is-a-query.html">A catalogue is a query</a> &mdash; selling hardware and addons through partners</li>
+        <li><a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a> &mdash; replacing the helpdesk support lives in</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

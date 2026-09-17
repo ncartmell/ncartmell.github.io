@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Six vendors, one API — Nathan Cartmell</title>
+<meta name="description" content="You can abstract the transport. You cannot abstract the semantics. Notes on writing one provisioning interface across six manufacturers' firmware.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/six-vendors-one-api.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Six vendors, one API">
+<meta property="og:description" content="You can abstract the transport. You cannot abstract the semantics.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/six-vendors-one-api.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Six vendors, one API</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      A provisioning server has one job: a phone asks who it is, and the server tells it.
+      Underneath that, it has six jobs, because we support six manufacturers and no two of
+      them agreed on anything.
+    </p>
+
+    <h2>Nothing is shared</h2>
+
+    <p>
+      Start with the file. Four of the six take XML — but four mutually incompatible
+      shapes, with different root elements, different nesting and different conventions
+      for expressing a setting. One of those uses opaque numbered parameter codes rather
+      than names, so the config is a list of numbers mapped to values and the mapping
+      lives in a vendor PDF. The other two take key-value text in two different dialects,
+      and one of those has to be AES-encrypted in transit because the firmware will not
+      accept it otherwise.
+    </p>
+
+    <p>
+      Then the directory format differs again — independently of the config format. A
+      vendor whose config is XML does not necessarily use a directory schema resembling
+      its config schema, and none of the six directory formats match each other either.
+    </p>
+
+    <p>
+      None of this is standardised. There is no specification you can implement once.
+      There is a document per vendor, of varying quality, sometimes describing the
+      firmware from two releases ago.
+    </p>
+
+    <h2>Where the abstraction holds</h2>
+
+    <p>
+      Plenty of it does work. Authentication, identifying the device, loading its
+      configuration, deciding which directory it should see, rate limiting, logging — all
+      of that is genuinely shared. The vendor-specific part is narrower than it first
+      appears: take a resolved set of settings and render it in this vendor's dialect.
+    </p>
+
+    <p>
+      So the shape is a common pipeline with a rendering step per manufacturer, which is
+      the obvious design and the right one.
+    </p>
+
+    <p>
+      Getting there was itself a goal of the rewrite. The previous code had diverged per
+      vendor much further than the vendors required — the six paths differed in structure,
+      naming and approach as well as in file format, because each had been written or
+      extended at a different time by different people. Pulling them back together so that
+      the only difference is the difference that genuinely exists was as much the point as
+      preserving behaviour was. It is the difference between adding a seventh manufacturer
+      being a day's work and being a project.
+    </p>
+
+    <p>
+      The trouble is not the rendering. The trouble is that the settings themselves do not
+      mean the same thing.
+    </p>
+
+    <h2>Where it doesn't</h2>
+
+    <p>
+      Consider "line key 3" — the third programmable button down the side of a phone. It
+      sounds like an index into a list. It is not, quite.
+    </p>
+
+    <p>
+      On most vendors those keys are numbered from one. On one, they are numbered from
+      zero, so every key on the device is one place out from where the rest of the system
+      thinks it is. That difference is one character in the code and a genuinely confusing
+      afternoon before you find it, because the symptom is not an error — it is a phone
+      where every button does the job of its neighbour.
+    </p>
+
+    <p>
+      Then models differ within a vendor. A handset with an expansion module might have
+      forty-eight keys where the base model has a dozen. Code that assumed a single page
+      of keys walks off the end of an array. A related fix: busy-lamp indicators
+      displaying correctly on the first page of keys and incorrectly on every page after,
+      because paging behaviour was one of the things that varied and had been modelled as
+      though it did not.
+    </p>
+
+    <p>
+      Individually these are trivial. Several were literally one-character diffs. What
+      they cost was diagnosis, because the abstraction was working perfectly — it was
+      faithfully rendering a correct intention into a dialect where that intention meant
+      something slightly different.
+    </p>
+
+    <h2>The database ends up describing the hardware</h2>
+
+    <p>
+      The honest response to this is not more clever code. It is data.
+    </p>
+
+    <p>
+      Our device type model carries the number of line keys, the keys per page, the
+      maximum number of pages, whether the model supports hot desking and where its
+      log-in and log-out keys sit, how many directories it supports, whether it can be
+      auto-provisioned at all. A separate table records which features each model
+      supports, because support is per-model and not per-manufacturer.
+    </p>
+
+    <p>
+      That schema is essentially a machine-readable description of a hardware catalogue.
+      It looks like over-modelling until you try the alternative, which is conditionals
+      scattered across six rendering paths that each encode a fact about a specific
+      handset. Every quirk you push into data is a quirk that stops being a branch.
+    </p>
+
+    <p>
+      It does not eliminate vendor-specific code. It shrinks it to the part that is
+      genuinely about dialect, and moves everything that is about <em>this model's
+      capabilities</em> into rows you can change without a deploy.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>You can abstract transport. You cannot abstract semantics.</strong> Writing
+      six renderers for six file formats is tedious but tractable — it is mechanical, and
+      you can test it. The cost lands where two vendors use the same word for subtly
+      different things, because there the abstraction compiles, passes review, renders
+      valid output, and is wrong.
+    </p>
+
+    <p>
+      <strong>Off-by-one is a semantic difference, not a bug.</strong> A vendor numbering
+      keys from zero is not incorrect. It is a different convention, and the failure is in
+      the layer that assumed conventions were shared. Treating it as a bug to be patched
+      rather than a fact to be recorded means fixing it repeatedly.
+    </p>
+
+    <p>
+      <strong>Put hardware facts in data.</strong> Anything of the form "this model has N
+      of X" or "this model supports Y" belongs in a row, not an <code>if</code>. You will
+      be wrong about the facts — vendors ship new models, firmware adds capabilities — and
+      you want being wrong to be an update, not a release.
+    </p>
+
+    <p>
+      <strong>The one-character diffs are the expensive ones.</strong> Nothing in the
+      history of this project is less proportionate to its cost than the fixes that
+      changed a single digit. That is what integrating with hardware you do not control
+      looks like: the code is trivial, the knowledge is not, and the knowledge is only
+      obtainable by getting it wrong in front of a real device.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

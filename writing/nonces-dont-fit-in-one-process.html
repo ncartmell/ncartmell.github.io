@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nonces don't fit in one process — Nathan Cartmell</title>
+<meta name="description" content="Digest authentication worked fine on a single Python process. Running several instances behind a load balancer turned a local variable into a distributed systems problem.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nonces don't fit in one process">
+<meta property="og:description" content="Digest auth worked fine on one process. Several instances behind a load balancer turned a local variable into a distributed systems problem.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Nonces don't fit in one process</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Most of what broke after we moved our provisioning server from Python to Kotlin
+      broke because of the devices. This one broke because of us — specifically because
+      the new service ran as several instances behind a load balancer, and the old one
+      had been a single process.
+    </p>
+
+    <p>
+      Nothing about the protocol changed. Nothing about the devices changed. The
+      deployment topology changed, and that was enough.
+    </p>
+
+    <h2>How digest auth works</h2>
+
+    <p>
+      One manufacturer's handsets authenticate with HTTP digest rather than basic auth.
+      The exchange goes:
+    </p>
+
+    <ol>
+      <li>The device requests its config with no credentials.</li>
+      <li>The server responds <code>401</code> with a challenge containing a
+        <strong>nonce</strong> — a one-time value the server has just generated.</li>
+      <li>The device hashes its username, password and that nonce together, and retries
+        with the result.</li>
+      <li>The server computes the same hash using the nonce <em>it issued</em> and
+        compares.</li>
+    </ol>
+
+    <p>
+      The nonce is what stops the exchange being replayable: the password never crosses
+      the wire, and a captured response is useless against a different challenge. It only
+      works if the server can remember, between two separate HTTP requests, which nonce it
+      gave to which device.
+    </p>
+
+    <h2>Why one process made that invisible</h2>
+
+    <p>
+      On a single process, remembering is free. Put the nonce in a dictionary keyed by
+      device, look it up on the retry, done. It is barely a design decision — it is the
+      obvious thing, it works, and nothing about it announces that it depends on there
+      being exactly one of you.
+    </p>
+
+    <p>
+      Run three instances behind a load balancer and the assumption quietly stops holding.
+      The device's first request lands on instance A, which generates a nonce and stores
+      it in its own memory. The retry — a separate TCP connection, load-balanced
+      independently — lands on instance B, which has never heard of that nonce. B cannot
+      verify the hash, so it rejects the request and issues a challenge of its own. The
+      device retries against that, lands on instance C, and so on.
+    </p>
+
+    <p>
+      With three instances a device authenticates when it gets lucky and lands twice in a
+      row on the same one. That is the worst kind of failure: not "broken", just
+      <em>intermittent</em>, self-resolving on retry, impossible to reproduce on a single
+      local instance, and perfectly healthy in every test that runs against one process.
+    </p>
+
+    <h2>The fix is boring, which is the point</h2>
+
+    <p>
+      Move the nonce out of process memory and into shared storage — Redis, keyed by
+      device — so that whichever instance handles the retry can look up the challenge
+      whichever instance issued it.
+    </p>
+
+<pre><code>// before: implicit, per-instance, invisible
+nonces[macAddress] = nonce
+
+// after: explicit, shared, has a lifetime
+securityService.setNonce(macAddress, nonce)</code></pre>
+
+    <p>
+      That is genuinely all it is. The interesting part is not the fix but that the code
+      needing it looked completely correct, had presumably worked for years, and contained
+      no clue that it would stop working. There is no comment to write on a dictionary
+      assignment that says "only valid while this process is the only one".
+    </p>
+
+    <p>
+      Worth noting too: once the nonce is in shared storage it acquires properties the
+      local version never had to think about. It needs an expiry, because entries are no
+      longer discarded when a process restarts. It needs a key namespace that cannot
+      collide. And a challenge is now a write to a network service on a path that
+      previously touched nothing but memory.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Horizontal scaling converts implicit local state into explicit shared
+      state</strong> — and it does not warn you which state that is. Anything a request
+      stores expecting the <em>next</em> request to find it is a candidate: session data,
+      rate-limit counters, in-flight locks, caches used for correctness rather than speed,
+      and auth challenges. The migration exposes them one at a time, in production,
+      usually as something intermittent.
+    </p>
+
+    <p>
+      <strong>Multi-step protocols are where this hurts most.</strong> A single-request
+      endpoint does not care which instance serves it. A challenge-response exchange
+      spans two requests by definition, so it carries an implicit assumption about
+      instance affinity that nobody wrote down because, on one process, it was not an
+      assumption.
+    </p>
+
+    <p>
+      <strong>Intermittent auth failures are a topology smell.</strong> If something
+      authenticates on the second or third attempt and you cannot reproduce it locally,
+      stop reading the auth code and count how many instances are running. Working "most
+      of the time" in a way that correlates with instance count is not a race condition
+      in your logic — it is state living in the wrong place.
+    </p>
+
+    <p>
+      Sticky sessions would also have "fixed" this, and I am glad we did not reach for
+      them. Pinning devices to instances would have hidden the design problem behind a
+      load balancer setting, and left it to resurface the next time an instance was
+      replaced.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="everyone-checks-in-at-once.html">Everyone checks in at once</a> &mdash; fixed intervals and thundering herds</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>

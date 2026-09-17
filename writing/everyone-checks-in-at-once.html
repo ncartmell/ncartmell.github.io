@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Everyone checks in at once — Nathan Cartmell</title>
+<meta name="description" content="Give every phone the same check-in interval and they synchronise. The obvious fix — random jitter — would have rebooted the estate on every cycle.">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Everyone checks in at once">
+<meta property="og:description" content="Give every phone the same check-in interval and they synchronise. The obvious fix would have rebooted the estate on every cycle.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html">
+<meta property="og:image" content="https://ncartmell.co.uk/og.png">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="backlink" href="./">&larr; Writing</a>
+
+  <article>
+    <h1>Everyone checks in at once</h1>
+    <div class="posted"><time datetime="2026-09-17">17 September 2026</time></div>
+
+    <p>
+      Desk phones ask a provisioning server for their configuration on a timer. Set that
+      timer to a day and each phone checks in once a day, which sounds like it spreads
+      the load across twenty-four hours. It does not. It spreads the load across however
+      many distinct moments the phones happened to boot at — and a surprising number of
+      them booted at the same moment.
+    </p>
+
+    <p>
+      A site loses power and comes back. A firmware push goes out. Somebody applies a
+      profile change across an account. In each case a block of phones restarts together,
+      starts its timer together, and then — because the interval is identical for all of
+      them — stays in lockstep indefinitely. A daily interval does not decay into a
+      smooth distribution. It preserves whatever clustering existed at boot, forever.
+    </p>
+
+    <h2>Three herds, not one</h2>
+
+    <p>
+      The provisioning check-in is the obvious one, but it is not the only periodic timer
+      a provisioning server hands out. It also sets how often the phone refreshes its SIP
+      registration, and how often it renews the subscriptions behind busy-lamp indicators
+      — the little lights showing whether a colleague is on a call.
+    </p>
+
+    <p>
+      All three are configured values. All three were fixed. So a cluster of phones that
+      booted together would hit the provisioning server together, re-register together,
+      and renew their presence subscriptions together.
+    </p>
+
+    <h2>The obvious fix is wrong</h2>
+
+    <p>
+      The textbook answer to a thundering herd is jitter: add a random offset so the
+      herd spreads out. Generate a random number per request, subtract it from the interval,
+      done.
+    </p>
+
+    <p>
+      That would have been a serious mistake here, and the reason is specific to
+      configuring hardware rather than calling an API.
+    </p>
+
+    <p>
+      A phone does not re-apply its whole configuration on every check-in. It compares
+      what the server sends against what it currently has and applies the differences.
+      For most parameters that is harmless. For some — one vendor's device-level settings in
+      particular — changing a value triggers a reboot so the phone can pick it up.
+    </p>
+
+    <p>
+      If the interval is randomly generated on each request, then the value differs every
+      time the phone asks. The phone sees a changed setting, applies it, and reboots. Then
+      it boots, checks in, receives another new random interval, and reboots again. The
+      obvious fix for "the fleet calls in together" would have been "the fleet reboots
+      continuously".
+    </p>
+
+    <h2>Deterministic spread</h2>
+
+    <p>
+      The offset has to be stable per device: different from its neighbours, identical
+      every time that device asks. So it is derived from a hash of the device's MAC
+      address rather than drawn from a random source.
+    </p>
+
+<pre><code>// same device -> same offset, every time
+val offset = hash(macAddress + timerSalt) % SPREAD_WINDOW
+val interval = configuredInterval - offset</code></pre>
+
+    <p>
+      Each phone gets its own point in the window and keeps it, so the generated config
+      is byte-identical between check-ins and nothing is ever seen as changed. The herd
+      breaks apart and nothing reboots.
+    </p>
+
+    <p>
+      Two details in that line matter more than they look:
+    </p>
+
+    <p>
+      <strong>Each timer gets its own salt.</strong> If registration and subscription
+      refresh share an offset, then every phone renews both at the same instant — you
+      have spread the fleet out but bunched each device's own traffic into a spike.
+      Different salts per timer put a given phone's registration refresh and its
+      subscription renewal at different points in the hour.
+    </p>
+
+    <p>
+      <strong>The offset is only ever subtracted.</strong> Some of these intervals have
+      protocol or vendor ceilings — a subscription period of 3600 seconds means 3600, not
+      "around 3600". Adding a random offset could push a device over the limit. Subtracting
+      keeps every value inside its bound, at the cost of making the mean slightly shorter:
+      an hour becomes fifty to sixty minutes, averaging fifty-five. Slightly more traffic
+      overall, in exchange for never exceeding a ceiling. That is the right trade.
+    </p>
+
+    <p>
+      There is a floor as well, so that a profile asking for an aggressively short
+      interval cannot be spread down into something pathological.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>A fixed interval is a synchronisation primitive.</strong> It does not
+      distribute load; it preserves whatever distribution existed when the clients
+      started, and every mass restart re-clusters them. If you set a uniform interval
+      across a fleet, you have not scheduled work evenly — you have scheduled it in
+      lumps, and the lumps are wherever the last outage put them.
+    </p>
+
+    <p>
+      <strong>Jitter has to be deterministic when the client diffs.</strong> Randomness
+      per request is fine when the response is consumed and discarded. When the client
+      compares this response against the last one and acts on the difference, a value
+      that changes every time is a value that triggers the action every time. Hash the
+      client identity instead; you get the same spread and a stable answer.
+    </p>
+
+    <p>
+      <strong>Think about what you are spreading, not just that you are spreading.</strong>
+      Sharing one offset across several timers moves the problem from between devices to
+      within a device. It is the same mistake at a smaller scale, and easier to miss.
+    </p>
+
+    <div class="seealso">
+      <p><strong>Also in this series</strong></p>
+      <ul>
+        <li><a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a> &mdash; the rewrite and cutover</li>
+        <li><a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a> &mdash; valid XML, truncated anyway</li>
+        <li><a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a> &mdash; auth state after horizontal scaling</li>
+        <li><a href="six-vendors-one-api.html">Six vendors, one API</a> &mdash; the abstraction tax of other people's firmware</li>
+        <li><a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a> &mdash; trading memory for latency</li>
+        <li><a href="writing-to-both.html">Writing to both</a> &mdash; dual writes during a live migration</li>
+        <li><a href="expected-failures-are-not-errors.html">Expected failures are not errors</a> &mdash; rolling out tracing and useful logs</li>
+      </ul>
+    </div>
+
+  </article>
+</div>
+</body>
+</html>
