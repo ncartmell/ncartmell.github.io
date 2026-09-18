@@ -1,0 +1,30 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # sync.py is idempotent, so a diff here means the committed feed, sitemap,
+      # counts or per-post markup no longer match writing/index.html — someone
+      # edited a post and did not run the script.
+      - name: Derived files are in sync
+        run: |
+          python3 tools/sync.py
+          git diff --exit-code || {
+            echo "::error::Derived files are stale. Run 'python3 tools/sync.py' and commit."
+            exit 1
+          }
+
+      - name: Site checks
+        run: python3 tools/check.py

@@ -69,17 +69,6 @@ h1{font-size:1.9rem; letter-spacing:-.021em; font-weight:650}
   padding-left:.7rem; border-left:2px solid var(--rule);
 }
 
-/* ---------- currently ---------- */
-.now{
-  display:flex; gap:.7rem; align-items:baseline; flex-wrap:wrap;
-  background:var(--chip-bg); border-radius:6px; padding:.7rem .85rem; margin:0 0 1.15rem;
-}
-.now-label{
-  font-family:var(--mono); font-size:.68rem; font-weight:600; text-transform:uppercase;
-  letter-spacing:.09em; color:var(--faint); flex:0 0 auto;
-}
-.now-text{flex:1 1 14rem; min-width:0; font-size:.94rem}
-
 /* ---------- sections ---------- */
 section{margin-top:2.75rem}
 h2{
@@ -161,7 +150,6 @@ footer a:hover{color:var(--accent); border-bottom-color:var(--accent)}
   .job{margin-bottom:.85rem}
   .job ul{margin-top:.35rem}
   .job li{margin-bottom:.22rem}
-  .now{display:none !important}
   .wrap{max-width:none; padding:0}
   .no-print{display:none !important}
   a{border:0; color:#000}
@@ -176,7 +164,6 @@ footer a:hover{color:var(--accent); border-bottom-color:var(--accent)}
   h3{break-after:avoid}
   .job{margin-bottom:.85rem}
   .print-hide{display:none !important}
-  .now{background:none; padding:0; border-left:2px solid #ccc; padding-left:.6rem}
   h2{margin-bottom:.8rem}
   .head{margin-bottom:1.1rem}
 }

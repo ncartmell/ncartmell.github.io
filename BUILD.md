@@ -28,8 +28,8 @@ python3 -m http.server 8799 &
 kill %1
 ```
 
-The print stylesheet hides: the Download CV button, the "Currently" block, the Strava
-line, the colophon, and the Selected Work entries marked `.print-hide`.
+The print stylesheet hides: the Download CV button, the Strava line, the colophon, and
+the Selected Work entries marked `.print-hide`.
 
 ## Regenerating og.png
 
@@ -96,6 +96,18 @@ point where a phone screen renders the difference at all, so the nav pills read 
 text on mobile. They are now 1.21:1 (chip) and 1.34:1 against the page in both schemes.
 Keep them there: anything closer and the chips stop existing outside a colour-managed
 desktop display. The print block overrides both, so `cv.pdf` is unaffected.
+
+## Claims with a shelf life
+
+The page deliberately carries no claim that needs watching. An availability line ("not
+looking at the moment") and a "Currently" block naming an in-flight project were both
+removed: a stale one is worse than none, a visitor acts on the availability line, and
+nothing prompted you to revisit either.
+
+Where a number is worth keeping, write it as a floor rather than a point estimate —
+"over 600 pull requests" only ever becomes more true, where "around 630" was wrong
+within a fortnight. The `— Present` ranges are fine: they stay true while the job does,
+and leaving means rewriting the CV anyway.
 
 ## Images
 
