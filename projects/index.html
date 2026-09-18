@@ -20,37 +20,69 @@
 <body>
 <div class="wrap">
 
-  <a class="backlink" href="../">&larr; ncartmell.co.uk</a>
+  <nav class="subnav">
+    <a href="../">&larr; ncartmell.co.uk</a>
+    <a href="../writing/">Writing &rarr;</a>
+  </nav>
 
   <h1 class="page-title">Projects</h1>
 
   <p class="lede">
     Open source and anything else I've put out publicly. Most of what I build is for
     work and lives in private repositories, so this is the smaller half of what I do —
-    but it's the half you can actually read.
+    but it's the half you can actually read. All of it was written outside work, mostly
+    to use libraries I don't touch day to day.
   </p>
 
-  <ul class="entries">
+  <ul class="projects">
     <li>
-      <a href="https://github.com/ncartmell/mtg-life-tracker">mtg-life-tracker</a>
-      <span class="meta">Kotlin Multiplatform</span>
+      <div class="project-head">
+        <a href="https://github.com/ncartmell/mtg-life-tracker">mtg-life-tracker</a>
+        <span class="chips">
+          <span class="chip">Kotlin Multiplatform</span>
+          <span class="chip">Compose</span>
+        </span>
+      </div>
+      <p class="entry-note">
+        A life tracker for Magic: The Gathering sharing one codebase across Android, iOS
+        and desktop. The board rearranges itself for the number of players and turns each
+        panel to face the person it belongs to. The rules — elimination thresholds,
+        whether commander damage also costs life — live in a pure-Kotlin module with no
+        UI dependency, so they test on any JDK with no simulator or Android SDK involved.
+      </p>
     </li>
     <li>
-      <a href="https://github.com/ncartmell/ktor-task-api">ktor-task-api</a>
-      <span class="meta">Kotlin</span>
+      <div class="project-head">
+        <a href="https://github.com/ncartmell/ktor-task-api">ktor-task-api</a>
+        <span class="chips">
+          <span class="chip">Kotlin</span>
+          <span class="chip">Ktor</span>
+          <span class="chip">Exposed</span>
+          <span class="chip">PostgreSQL</span>
+        </span>
+      </div>
+      <p class="entry-note">
+        A small REST API for tasks. Ktor on Netty with kotlinx.serialization, Exposed over
+        a HikariCP pool, and a consistent response envelope so successes and failures come
+        back the same shape. Written to get familiar with Ktor and Exposed.
+      </p>
     </li>
     <li>
-      <a href="https://github.com/ncartmell/discord-bot">discord-bot</a>
-      <span class="meta">Java</span>
+      <div class="project-head">
+        <a href="https://github.com/ncartmell/discord-bot">discord-bot</a>
+        <span class="chips">
+          <span class="chip">Java</span>
+          <span class="chip">JDA</span>
+        </span>
+      </div>
+      <p class="entry-note">
+        A Discord bot built on JDA, with a small client for the Bungie API behind it —
+        item lookups by manifest hash, the milestones active this week, and lifetime
+        stats for a player. Written to learn the library, and to have somewhere to point
+        Destiny 2 questions.
+      </p>
     </li>
   </ul>
-
-  <p class="lede" style="margin-top:1.6rem">
-    A life tracker for Magic: The Gathering sharing one Kotlin Multiplatform codebase
-    across Android, iOS and desktop, with the game rules in a pure-Kotlin module that
-    tests without a simulator. Alongside it, a small Ktor REST API and a Discord bot.
-    All written outside work, mostly to use libraries I do not touch day to day.
-  </p>
 
 </div>
 </body>

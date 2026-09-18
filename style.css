@@ -41,9 +41,26 @@ h1{font-size:1.9rem; letter-spacing:-.021em; font-weight:650}
 .role{color:var(--muted); font-size:1.02rem; margin-top:.2rem}
 .loc{font-family:var(--mono); font-size:.8rem; color:var(--faint); margin-top:.45rem; letter-spacing:.01em}
 
-.links{display:flex; flex-wrap:wrap; align-items:baseline; gap:.4rem 1rem; margin-top:.9rem; font-size:.9rem}
-.links a{border:0; color:var(--muted)}
-.links a:hover{color:var(--accent)}
+.links{display:flex; flex-wrap:wrap; align-items:center; gap:.45rem; margin-top:1rem; font-size:.88rem}
+.links a{
+  border:1px solid var(--rule); border-radius:999px;
+  background:var(--chip-bg); color:var(--muted);
+  padding:.34rem .72rem; line-height:1.35;
+  transition:color .12s ease, border-color .12s ease, background-color .12s ease;
+}
+.links a:hover{
+  color:var(--accent);
+  border-color:color-mix(in srgb,var(--accent) 45%,var(--rule));
+}
+/* The CV is the one thing most visitors came for, so it reads as the primary action. */
+.links .print-btn{
+  font-family:var(--sans); font-size:.88rem; font-weight:560;
+  background:var(--accent); border-color:var(--accent); color:var(--bg);
+}
+.links .print-btn:hover{
+  color:var(--bg); border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 86%,var(--fg));
+}
 .availability{
   font-size:.86rem; color:var(--muted); margin-top:.7rem;
   padding-left:.7rem; border-left:2px solid var(--rule);
@@ -143,6 +160,11 @@ footer{
   .wrap{max-width:none; padding:0}
   .no-print{display:none !important}
   a{border:0; color:#000}
+  .links{gap:.3rem 1rem; margin-top:.6rem}
+  .links a{
+    background:none !important; border:0 !important;
+    padding:0 !important; border-radius:0 !important; color:#000;
+  }
   .links a::after{content:" (" attr(data-print) ")"; color:#555; font-size:.85em}
   section{margin-top:1.05rem}
   h2{break-after:avoid}
@@ -162,15 +184,35 @@ footer{
 .backlink:hover{color:var(--accent)}
 .page-title{font-size:1.9rem; letter-spacing:-.021em; font-weight:650; margin-bottom:1rem}
 .lede{font-size:1.02rem; max-width:34rem}
-.entries{list-style:none; margin:2rem 0 0; padding:0}
-.entries li{
-  display:flex; justify-content:space-between; gap:1rem;
-  flex-wrap:wrap; padding:.85rem 0; border-bottom:1px solid var(--rule);
-}
-.entries a{border:0; font-weight:540}
+.entries{list-style:none; margin:1.1rem 0 0; padding:0}
+.entries li{padding:.95rem 0; border-bottom:1px solid var(--rule)}
+.entries a{border:0; font-weight:560; font-size:1.02rem}
 .entries .meta{
   font-family:var(--mono); font-size:.78rem; color:var(--faint); white-space:nowrap;
 }
+/* One line on what a piece is actually about. Twenty-one bare titles do not scan. */
+.entry-note{margin:.25rem 0 0; color:var(--muted); font-size:.92rem; line-height:1.55}
+
+.subnav{
+  display:flex; justify-content:space-between; align-items:baseline;
+  gap:1rem; flex-wrap:wrap; margin-bottom:2rem;
+  font-family:var(--mono); font-size:.78rem;
+}
+.subnav a{border:0; color:var(--faint)}
+.subnav a:hover{color:var(--accent)}
+
+.collection{margin-top:2.6rem}
+.collection:first-of-type{margin-top:2.2rem}
+
+.projects{list-style:none; margin:1.6rem 0 0; padding:0}
+.projects li{padding:1.05rem 0; border-bottom:1px solid var(--rule)}
+.projects li:first-child{border-top:1px solid var(--rule)}
+.project-head{
+  display:flex; justify-content:space-between; align-items:baseline;
+  gap:.5rem 1rem; flex-wrap:wrap;
+}
+.project-head a{border:0; font-family:var(--mono); font-size:1rem; font-weight:600}
+.project-head .chips{display:flex; flex-wrap:wrap; gap:.3rem}
 .empty{
   margin-top:2rem; padding:1.1rem 1.2rem; background:var(--chip-bg);
   border-radius:6px; color:var(--muted); font-size:.94rem;
@@ -212,6 +254,7 @@ pre code{background:none; padding:0; font-size:inherit}
 .seealso li{margin-bottom:.3rem; font-size:.94rem}
 .group{
   font-family:var(--mono); font-size:.72rem; font-weight:600; text-transform:uppercase;
-  letter-spacing:.11em; color:var(--faint); margin:2.4rem 0 .2rem;
+  letter-spacing:.11em; color:var(--faint); margin:0;
+  display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
 }
-.group:first-of-type{margin-top:2rem}
+.group .count{font-weight:400; letter-spacing:.06em; white-space:nowrap}

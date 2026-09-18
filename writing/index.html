@@ -20,117 +20,126 @@
 <body>
 <div class="wrap">
 
-  <a class="backlink" href="../">&larr; ncartmell.co.uk</a>
+  <nav class="subnav">
+    <a href="../">&larr; ncartmell.co.uk</a>
+    <a href="../projects/">Projects &rarr;</a>
+  </nav>
 
   <h1 class="page-title">Writing</h1>
 
   <p class="lede">
     Notes on problems worth writing up — systems I've built, things that broke in
     interesting ways, and decisions I would make differently a second time.
+    21 pieces, grouped by the system they came out of.
   </p>
 
-  <h2 class="group">The platform migration</h2>
-  <ul class="entries">
-    <li>
-      <a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="nonces-dont-fit-in-one-process.html">Nonces don't fit in one process</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="six-vendors-one-api.html">Six vendors, one API</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="everyone-checks-in-at-once.html">Everyone checks in at once</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="writing-to-both.html">Writing to both</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="expected-failures-are-not-errors.html">Expected failures are not errors</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-  </ul>
+  <section class="collection">
+    <h2 class="group">The platform migration<span class="count">8 posts</span></h2>
+    <ul class="entries">
+      <li>
+        <a href="the-estate-is-the-hard-part.html">The hard part was the devices already out there</a>
+        <p class="entry-note">Rewriting a provisioning server from Python to Kotlin, and cutting thousands of desk phones over to it by DNS. The rewrite was the easy half.</p>
+      </li>
+      <li>
+        <a href="whitespace-was-load-bearing.html">The whitespace was load-bearing</a>
+        <p class="entry-note">Removing newlines from a valid XML document took out desk phone directories across an entire handset range. The XML stayed valid; the line length did not.</p>
+      </li>
+      <li>
+        <a href="nonces-dont-fit-in-one-process.html">Nonces don&#x27;t fit in one process</a>
+        <p class="entry-note">Digest authentication worked fine on a single Python process. Running several instances behind a load balancer turned a local variable into a distributed systems problem.</p>
+      </li>
+      <li>
+        <a href="six-vendors-one-api.html">Six vendors, one API</a>
+        <p class="entry-note">You can abstract the transport. You cannot abstract the semantics. Notes on writing one provisioning interface across six manufacturers' firmware.</p>
+      </li>
+      <li>
+        <a href="cheaper-for-the-server.html">Cheaper for the server, dearer for the phone</a>
+        <p class="entry-note">Splitting a monolith stopped any one service holding a whole directory in memory. It also made large directories slow to assemble — and the slowest client sets the limit.</p>
+      </li>
+      <li>
+        <a href="everyone-checks-in-at-once.html">Everyone checks in at once</a>
+        <p class="entry-note">Give every phone the same check-in interval and they synchronise. The obvious fix — random jitter — would have rebooted the estate on every cycle.</p>
+      </li>
+      <li>
+        <a href="writing-to-both.html">Writing to both</a>
+        <p class="entry-note">You cannot move a live platform to a new database in one step. Dual writes are how you make the migration boring — and most of the work is in the failure handling.</p>
+      </li>
+      <li>
+        <a href="expected-failures-are-not-errors.html">Expected failures are not errors</a>
+        <p class="entry-note">Rolling tracing and structured logging across a platform. The instrumentation was the easy half; making the output mean something took longer.</p>
+      </li>
+    </ul>
+  </section>
 
-  <h2 class="group">Regulated telecoms</h2>
-  <ul class="entries">
-    <li>
-      <a href="the-address-that-has-to-be-right.html">The address that has to be right</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="porting-a-number.html">Porting a number</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="someone-elses-phone-bill.html">Someone else's phone bill</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-  </ul>
+  <section class="collection">
+    <h2 class="group">Regulated telecoms<span class="count">3 posts</span></h2>
+    <ul class="entries">
+      <li>
+        <a href="the-address-that-has-to-be-right.html">The address that has to be right</a>
+        <p class="entry-note">Two overlapping models had grown up for the address that determines where a 999 call is routed. Consolidating them meant deciding which one had ever been true.</p>
+      </li>
+      <li>
+        <a href="porting-a-number.html">Porting a number</a>
+        <p class="entry-note">Moving a phone number between providers is a regulated, document-backed handover between competitors, and the failure mode is a business losing the number on its van.</p>
+      </li>
+      <li>
+        <a href="someone-elses-phone-bill.html">Someone else&#x27;s phone bill</a>
+        <p class="entry-note">Toll fraud costs real money by the minute. The useful controls turned out to be graduated ones — risk scores that trigger verification rather than walls that block.</p>
+      </li>
+    </ul>
+  </section>
 
-  <h2 class="group">Mobile clients</h2>
-  <ul class="entries">
-    <li>
-      <a href="the-socket-is-not-the-call.html">The socket is not the call</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="presence-is-not-a-boolean.html">Presence is not a boolean</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="the-rewrite-that-was-never-a-project.html">The rewrite that was never a project</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="the-store-is-part-of-the-system.html">The store is part of the system</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-  </ul>
+  <section class="collection">
+    <h2 class="group">Mobile clients<span class="count">4 posts</span></h2>
+    <ul class="entries">
+      <li>
+        <a href="the-socket-is-not-the-call.html">The socket is not the call</a>
+        <p class="entry-note">Building real-time calling into a mobile app means the operating system, your app and a websocket all hold an opinion about whether a call is happening. They disagree.</p>
+      </li>
+      <li>
+        <a href="presence-is-not-a-boolean.html">Presence is not a boolean</a>
+        <p class="entry-note">The little light showing whether a colleague is free looks like one bit. It is a composite of registration, call state, do-not-disturb and queue availability, delivered to every client.</p>
+      </li>
+      <li>
+        <a href="the-rewrite-that-was-never-a-project.html">The rewrite that was never a project</a>
+        <p class="entry-note">Building a chat client inside a phone app over three years, and moving it from UIKit to SwiftUI in a single commit nobody scheduled.</p>
+      </li>
+      <li>
+        <a href="the-store-is-part-of-the-system.html">The store is part of the system</a>
+        <p class="entry-note">Shipping one codebase as several branded apps through two app stores. Release is not a deployment step, it is a dependency with its own deadlines and its own opinions.</p>
+      </li>
+    </ul>
+  </section>
 
-  <h2 class="group">Platform and internal tools</h2>
-  <ul class="entries">
-    <li>
-      <a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="one-person-several-accounts.html">One person, several accounts</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="a-catalogue-is-a-query.html">A catalogue is a query</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-    <li>
-      <a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a>
-      <span class="meta">17 Sep 2026</span>
-    </li>
-  </ul>
-
-
-
+  <section class="collection">
+    <h2 class="group">Platform and internal tools<span class="count">6 posts</span></h2>
+    <ul class="entries">
+      <li>
+        <a href="the-tool-your-colleagues-live-in.html">The tool your colleagues live in</a>
+        <p class="entry-note">Maintaining the internal portal a company runs on. Your users sit near you, nothing is ever prioritised until it breaks, and it is the union of every other system you own.</p>
+      </li>
+      <li>
+        <a href="one-person-several-accounts.html">One person, several accounts</a>
+        <p class="entry-note">Single sign-on assumes an identity maps to an account. In a white-label platform it often maps to four, and the login flow has to cope before the user has proved anything.</p>
+      </li>
+      <li>
+        <a href="hiding-a-button-is-not-a-permission.html">Hiding a button is not a permission</a>
+        <p class="entry-note">Adding granular permissions to a portal that grew up without them, and keeping the interface honest about what a user can actually do.</p>
+      </li>
+      <li>
+        <a href="reports-are-a-scheduling-problem.html">Reports are a scheduling problem</a>
+        <p class="entry-note">Building call reporting end to end. The queries are the easy part; the hard parts are recurrence, drilldowns and deciding what a number means.</p>
+      </li>
+      <li>
+        <a href="a-catalogue-is-a-query.html">A catalogue is a query</a>
+        <p class="entry-note">Selling hardware, numbers and contract addons through partners. What you can order depends on who you are, what you already have, and how long you signed up for.</p>
+      </li>
+      <li>
+        <a href="decommissioning-is-the-milestone.html">Decommissioning is the milestone</a>
+        <p class="entry-note">Replacing the helpdesk your support team works in, without them stopping. The migration is the easy half; turning the old one off is the part that counts.</p>
+      </li>
+    </ul>
+  </section>
 
 </div>
 </body>
