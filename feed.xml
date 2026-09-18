@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Nathan Cartmell — Writing</title>
+  <subtitle>Notes on systems, telecoms infrastructure and problems worth explaining.</subtitle>
+  <link href="https://ncartmell.co.uk/feed.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://ncartmell.co.uk/writing/" rel="alternate" type="text/html"/>
+  <id>https://ncartmell.co.uk/writing/</id>
+  <updated>2026-09-17T12:00:00+01:00</updated>
+  <author>
+    <name>Nathan Cartmell</name>
+    <uri>https://ncartmell.co.uk/</uri>
+  </author>
+  <rights>© 2026 Nathan Cartmell</rights>
+
+  <entry>
+    <title>The hard part was the devices already out there</title>
+    <link href="https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html</id>
+    <published>2026-09-17T12:00:00+01:00</published>
+    <updated>2026-09-17T12:00:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>Rewriting a provisioning server from Python to Kotlin, and cutting thousands of desk phones over to it by DNS. The rewrite was the easy half.</summary>
+  </entry>
+
+  <entry>
+    <title>The whitespace was load-bearing</title>
+    <link href="https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html</id>
+    <published>2026-09-17T11:59:00+01:00</published>
+    <updated>2026-09-17T11:59:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>Removing newlines from a valid XML document took out desk phone directories across an entire handset range. The XML stayed valid; the line length did not.</summary>
+  </entry>
+
+  <entry>
+    <title>Nonces don't fit in one process</title>
+    <link href="https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html</id>
+    <published>2026-09-17T11:58:00+01:00</published>
+    <updated>2026-09-17T11:58:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>Digest authentication worked fine on a single Python process. Running several instances behind a load balancer turned a local variable into a distributed systems problem.</summary>
+  </entry>
+
+  <entry>
+    <title>Six vendors, one API</title>
+    <link href="https://ncartmell.co.uk/writing/six-vendors-one-api.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/six-vendors-one-api.html</id>
+    <published>2026-09-17T11:57:00+01:00</published>
+    <updated>2026-09-17T11:57:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>You can abstract the transport. You cannot abstract the semantics. Notes on writing one provisioning interface across six manufacturers' firmware.</summary>
+  </entry>
+
+  <entry>
+    <title>Cheaper for the server, dearer for the phone</title>
+    <link href="https://ncartmell.co.uk/writing/cheaper-for-the-server.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/cheaper-for-the-server.html</id>
+    <published>2026-09-17T11:56:00+01:00</published>
+    <updated>2026-09-17T11:56:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>Splitting a monolith stopped any one service holding a whole directory in memory. It also made large directories slow to assemble — and the slowest client sets the limit.</summary>
+  </entry>
+
+  <entry>
+    <title>Everyone checks in at once</title>
+    <link href="https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html</id>
+    <published>2026-09-17T11:55:00+01:00</published>
+    <updated>2026-09-17T11:55:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>Give every phone the same check-in interval and they synchronise. The obvious fix — random jitter — would have rebooted the estate on every cycle.</summary>
+  </entry>
+
+  <entry>
+    <title>Writing to both</title>
+    <link href="https://ncartmell.co.uk/writing/writing-to-both.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/writing-to-both.html</id>
+    <published>2026-09-17T11:54:00+01:00</published>
+    <updated>2026-09-17T11:54:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>You cannot move a live platform to a new database in one step. Dual writes are how you make the migration boring — and most of the work is in the failure handling.</summary>
+  </entry>
+
+  <entry>
+    <title>Expected failures are not errors</title>
+    <link href="https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html</id>
+    <published>2026-09-17T11:53:00+01:00</published>
+    <updated>2026-09-17T11:53:00+01:00</updated>
+    <category term="The platform migration"/>
+    <summary>Rolling tracing and structured logging across a platform. The instrumentation was the easy half; making the output mean something took longer.</summary>
+  </entry>
+
+  <entry>
+    <title>The address that has to be right</title>
+    <link href="https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html</id>
+    <published>2026-09-17T11:52:00+01:00</published>
+    <updated>2026-09-17T11:52:00+01:00</updated>
+    <category term="Regulated telecoms"/>
+    <summary>Two overlapping models had grown up for the address that determines where a 999 call is routed. Consolidating them meant deciding which one had ever been true.</summary>
+  </entry>
+
+  <entry>
+    <title>Porting a number</title>
+    <link href="https://ncartmell.co.uk/writing/porting-a-number.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/porting-a-number.html</id>
+    <published>2026-09-17T11:51:00+01:00</published>
+    <updated>2026-09-17T11:51:00+01:00</updated>
+    <category term="Regulated telecoms"/>
+    <summary>Moving a phone number between providers is a regulated, document-backed handover between competitors, and the failure mode is a business losing the number on its van.</summary>
+  </entry>
+
+  <entry>
+    <title>Someone else's phone bill</title>
+    <link href="https://ncartmell.co.uk/writing/someone-elses-phone-bill.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/someone-elses-phone-bill.html</id>
+    <published>2026-09-17T11:50:00+01:00</published>
+    <updated>2026-09-17T11:50:00+01:00</updated>
+    <category term="Regulated telecoms"/>
+    <summary>Toll fraud costs real money by the minute. The useful controls turned out to be graduated ones — risk scores that trigger verification rather than walls that block.</summary>
+  </entry>
+
+  <entry>
+    <title>The socket is not the call</title>
+    <link href="https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html</id>
+    <published>2026-09-17T11:49:00+01:00</published>
+    <updated>2026-09-17T11:49:00+01:00</updated>
+    <category term="Mobile clients"/>
+    <summary>Building real-time calling into a mobile app means the operating system, your app and a websocket all hold an opinion about whether a call is happening. They disagree.</summary>
+  </entry>
+
+  <entry>
+    <title>Presence is not a boolean</title>
+    <link href="https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html</id>
+    <published>2026-09-17T11:48:00+01:00</published>
+    <updated>2026-09-17T11:48:00+01:00</updated>
+    <category term="Mobile clients"/>
+    <summary>The little light showing whether a colleague is free looks like one bit. It is a composite of registration, call state, do-not-disturb and queue availability, delivered to every client.</summary>
+  </entry>
+
+  <entry>
+    <title>The rewrite that was never a project</title>
+    <link href="https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html</id>
+    <published>2026-09-17T11:47:00+01:00</published>
+    <updated>2026-09-17T11:47:00+01:00</updated>
+    <category term="Mobile clients"/>
+    <summary>Building a chat client inside a phone app over three years, and moving it from UIKit to SwiftUI in a single commit nobody scheduled.</summary>
+  </entry>
+
+  <entry>
+    <title>The store is part of the system</title>
+    <link href="https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html</id>
+    <published>2026-09-17T11:46:00+01:00</published>
+    <updated>2026-09-17T11:46:00+01:00</updated>
+    <category term="Mobile clients"/>
+    <summary>Shipping one codebase as several branded apps through two app stores. Release is not a deployment step, it is a dependency with its own deadlines and its own opinions.</summary>
+  </entry>
+
+  <entry>
+    <title>The tool your colleagues live in</title>
+    <link href="https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html</id>
+    <published>2026-09-17T11:45:00+01:00</published>
+    <updated>2026-09-17T11:45:00+01:00</updated>
+    <category term="Platform and internal tools"/>
+    <summary>Maintaining the internal portal a company runs on. Your users sit near you, nothing is ever prioritised until it breaks, and it is the union of every other system you own.</summary>
+  </entry>
+
+  <entry>
+    <title>One person, several accounts</title>
+    <link href="https://ncartmell.co.uk/writing/one-person-several-accounts.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/one-person-several-accounts.html</id>
+    <published>2026-09-17T11:44:00+01:00</published>
+    <updated>2026-09-17T11:44:00+01:00</updated>
+    <category term="Platform and internal tools"/>
+    <summary>Single sign-on assumes an identity maps to an account. In a white-label platform it often maps to four, and the login flow has to cope before the user has proved anything.</summary>
+  </entry>
+
+  <entry>
+    <title>Hiding a button is not a permission</title>
+    <link href="https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html</id>
+    <published>2026-09-17T11:43:00+01:00</published>
+    <updated>2026-09-17T11:43:00+01:00</updated>
+    <category term="Platform and internal tools"/>
+    <summary>Adding granular permissions to a portal that grew up without them, and keeping the interface honest about what a user can actually do.</summary>
+  </entry>
+
+  <entry>
+    <title>Reports are a scheduling problem</title>
+    <link href="https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html</id>
+    <published>2026-09-17T11:42:00+01:00</published>
+    <updated>2026-09-17T11:42:00+01:00</updated>
+    <category term="Platform and internal tools"/>
+    <summary>Building call reporting end to end. The queries are the easy part; the hard parts are recurrence, drilldowns and deciding what a number means.</summary>
+  </entry>
+
+  <entry>
+    <title>A catalogue is a query</title>
+    <link href="https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html</id>
+    <published>2026-09-17T11:41:00+01:00</published>
+    <updated>2026-09-17T11:41:00+01:00</updated>
+    <category term="Platform and internal tools"/>
+    <summary>Selling hardware, numbers and contract addons through partners. What you can order depends on who you are, what you already have, and how long you signed up for.</summary>
+  </entry>
+
+  <entry>
+    <title>Decommissioning is the milestone</title>
+    <link href="https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html</id>
+    <published>2026-09-17T11:40:00+01:00</published>
+    <updated>2026-09-17T11:40:00+01:00</updated>
+    <category term="Platform and internal tools"/>
+    <summary>Replacing the helpdesk your support team works in, without them stopping. The migration is the easy half; turning the old one off is the part that counts.</summary>
+  </entry>
+
+</feed>
