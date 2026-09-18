@@ -6,17 +6,20 @@
   --maxw:44rem;
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
+  :root{
     --bg:#101215; --fg:#e6e8ec; --muted:#a7aeb9; --faint:#7f8794;
     --rule:#2b2f37; --accent:#6ea8ff; --chip-bg:#22262e; --chip-fg:#c2c7d0;
   }
 }
-:root[data-theme="dark"]{
-  --bg:#101215; --fg:#e6e8ec; --muted:#a7aeb9; --faint:#7f8794;
-  --rule:#2b2f37; --accent:#6ea8ff; --chip-bg:#22262e; --chip-fg:#c2c7d0;
-}
 
 *{box-sizing:border-box}
+.skip{
+  position:absolute; left:-9999px; top:0; z-index:10;
+  background:var(--bg); color:var(--accent);
+  border:1px solid var(--rule); border-radius:4px;
+  padding:.5rem .8rem; font-size:.85rem;
+}
+.skip:focus{left:.8rem; top:.8rem}
 body{
   margin:0; background:var(--bg); color:var(--fg);
   font-family:var(--sans); font-size:16px; line-height:1.6;
@@ -125,6 +128,8 @@ footer{
   font-family:var(--mono); font-size:.74rem; color:var(--faint);
   display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
 }
+footer a{color:inherit; border-bottom-color:color-mix(in srgb,currentColor 30%,transparent)}
+footer a:hover{color:var(--accent); border-bottom-color:var(--accent)}
 .print-btn{
   font-family:var(--mono); font-size:.74rem; color:var(--faint);
   border:0; padding:0;
@@ -241,6 +246,9 @@ pre{
   overflow-x:auto; margin:0 0 1.1rem; font-size:.84rem; line-height:1.55;
 }
 pre code{background:none; padding:0; font-size:inherit}
+figure{margin:0 0 1.3rem}
+figure img{width:100%; height:auto; border-radius:6px; border:1px solid var(--rule)}
+figcaption{font-size:.84rem; color:var(--faint); margin-top:.5rem}
 /* Every post is a landing page for someone. Give them the next one, not a dead end. */
 .postnav{
   display:flex; justify-content:space-between; gap:1.25rem 2rem; flex-wrap:wrap;
@@ -271,3 +279,5 @@ pre code{background:none; padding:0; font-size:inherit}
   display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
 }
 .group .count{font-weight:400; letter-spacing:.06em; white-space:nowrap}
+.group-name{display:flex; align-items:center; gap:.5rem; min-width:0}
+.group-icon{flex:0 0 auto; width:15px; height:15px; opacity:.85}

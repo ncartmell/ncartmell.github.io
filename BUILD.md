@@ -2,10 +2,10 @@
 
 Static site — no build step for the pages themselves. Edit the HTML and push.
 
-The one exception is `/writing/`, where three things are derived rather than written by
-hand: the Atom feed, the previous/next links at the foot of each post, and the
-`theme-color` / feed-autodiscovery / JSON-LD block in each post's head. `tools/sync.py`
-owns all of them. Run it after adding or retitling a post and commit the result:
+The one exception is `/writing/`, where several things are derived rather than written
+by hand: the Atom feed, `sitemap.xml`, the previous/next links at the foot of each post,
+the icon / `theme-color` / feed-autodiscovery / JSON-LD block in each post's head, and
+the post counts in the index lede and group headings. `tools/sync.py` owns all of them. Run it after adding or retitling a post and commit the result:
 
 ```sh
 python3 tools/sync.py
@@ -51,18 +51,19 @@ The Open Graph card (1200x630) is rendered from `og-card.html` the same way, wit
    ```
 
    The index shows no per-post date — every post carries its own date, and repeating one
-   identical date down a list of twenty is noise. Bump the `<span class="count">` on the
-   section heading, and the total in the lede.
-4. Add the post to `sitemap.xml`.
-5. Run `python3 tools/sync.py` to regenerate the feed, the previous/next links and the
-   per-post head block. A post that is not listed in `writing/index.html` is invisible
-   to the script — the index is the source of truth for what exists and in what order.
+   identical date down a list of twenty is noise. Do not touch the `<span class="count">`
+   or the total in the lede; the script owns both.
+4. Run `python3 tools/sync.py`. It regenerates the feed, `sitemap.xml`, the
+   previous/next links, the per-post head block and the counts. A post that is not
+   listed in `writing/index.html` is invisible to it — the index is the source of truth
+   for what exists and in what order.
+
+That is the whole checklist. Nothing about a post is maintained by hand twice.
 
 `writing/template.html` is deliberately `noindex`: it is published like everything else in
-this repository, and it contains placeholder text.
-
-Styling is shared via `style.css`; post-specific rules live in each post's own
-`<style>` block, copied from the template.
+this repository, and it contains placeholder text. It carries no `<style>` block — it
+used to duplicate the article rules from `style.css`, which is exactly how a stale
+`.backlink` rule survived in it unnoticed. All post styling lives in `style.css`.
 
 ## Adding a project
 
@@ -95,6 +96,30 @@ point where a phone screen renders the difference at all, so the nav pills read 
 text on mobile. They are now 1.21:1 (chip) and 1.34:1 against the page in both schemes.
 Keep them there: anything closer and the chips stop existing outside a colour-managed
 desktop display. The print block overrides both, so `cv.pdf` is unaffected.
+
+## Images
+
+`photo.jpg` is 256x256. It is displayed at 92px (66px on mobile) and rendered at 248px
+by the OG card, so 256 covers both — it was 512x512 and 80KB, which was the largest
+thing on the critical path of a site that otherwise ships no JavaScript and no webfonts.
+The 512px original is in git history if a 2x OG render ever needs it.
+
+`apple-touch-icon.png` is the same NC monogram as the inline-SVG favicon, which iOS
+ignores for home-screen bookmarks. It is a plain full-bleed square — iOS applies its own
+rounding and mask, so do not round the corners here.
+
+## Accessibility
+
+Every page has a `<main id="main">`, a `<footer>` and a skip link as its first focusable
+element. The skip link is `.no-print`. Keep all three when adding a page; the sub-page
+footer uses absolute URLs so it works at any depth, including from `404.html`.
+
+## Colour schemes
+
+Light and dark come entirely from `prefers-color-scheme`. There is no toggle and no
+`data-theme` attribute — that CSS existed for a while with nothing ever setting it, and
+a toggle would cost the "no JavaScript" line in the colophon. If you add one, update the
+colophon in the same commit.
 
 ## The feed
 

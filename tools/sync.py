@@ -5,6 +5,8 @@
 order they are in. This script reads that order and rewrites:
 
   * feed.xml                    — the Atom feed
+  * sitemap.xml                 — every public URL, with lastmod on the posts
+  * the post counts in writing/index.html (the lede total and each group)
   * the <!-- sync:head --> block in each post   (theme-color, feed link, JSON-LD)
   * the <!-- sync:nav --> block in each post    (previous / next)
 
@@ -91,6 +93,7 @@ def head_block(p):
                      "url": f"{SITE}/writing/"},
     }, indent=2, ensure_ascii=False).replace("</", "<\\/")
     body = (
+        '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
         '<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">\n'
         '<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">\n'
         '<link rel="alternate" type="application/atom+xml" title="Nathan Cartmell \u2014 Writing" href="/feed.xml">\n'
@@ -108,6 +111,41 @@ def nav_block(prev, nxt):
         parts.append(f'    <a class="next" href="{nxt["href"]}">'
                      f'<span class="dir">Next</span>{esc(nxt["title"])}</a>')
     return block("nav", '  <nav class="postnav">\n' + "\n".join(parts) + "\n  </nav>", "  ")
+
+
+def update_index(posts):
+    """Keep the lede total and each group's count honest. Only the numbers are
+    touched — the group headings, their icons and the entries stay hand-written."""
+    p = WRITING / "index.html"
+    t = p.read_text()
+
+    def fix(m):
+        sec = m.group(0)
+        n = len(re.findall(r'<a href="[^"]+\.html">', sec))
+        return re.sub(r'<span class="count">[^<]*</span>',
+                      f'<span class="count">{n} post{"" if n == 1 else "s"}</span>',
+                      sec, count=1)
+
+    t = re.sub(r'<section class="collection">.*?</section>', fix, t, flags=re.S)
+    t = re.sub(r"\b\d+ pieces\b", f"{len(posts)} pieces", t)
+    p.write_text(t)
+
+
+def write_sitemap(posts):
+    newest = max(p["date"] for p in posts)
+    rows = [f'  <url><loc>{SITE}/</loc><changefreq>monthly</changefreq>'
+            f'<priority>1.0</priority></url>',
+            f'  <url><loc>{SITE}/projects/</loc><changefreq>monthly</changefreq>'
+            f'<priority>0.6</priority></url>',
+            f'  <url><loc>{SITE}/writing/</loc><lastmod>{newest}</lastmod>'
+            f'<changefreq>monthly</changefreq><priority>0.6</priority></url>']
+    for p in posts:
+        rows.append(f'  <url><loc>{p["url"]}</loc><lastmod>{p["date"]}</lastmod>'
+                    f'<changefreq>yearly</changefreq><priority>0.7</priority></url>')
+    (ROOT / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(rows) + "\n</urlset>\n")
 
 
 def write_feed(posts):
@@ -147,11 +185,13 @@ def main():
         t = replace_block(t, "nav",
                           nav_block(posts[i - 1] if i else None,
                                     posts[i + 1] if i + 1 < len(posts) else None),
-                          "</div>\n</body>")
+                          "  <footer>")
         (WRITING / p["href"]).write_text(t)
 
+    update_index(posts)
     write_feed(posts)
-    print(f"synced {len(posts)} posts + feed.xml")
+    write_sitemap(posts)
+    print(f"synced {len(posts)} posts + feed.xml + sitemap.xml + index counts")
 
 
 if __name__ == "__main__":
