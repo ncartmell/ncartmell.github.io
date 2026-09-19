@@ -34,7 +34,10 @@ def read_order():
     t = (WRITING / "index.html").read_text()
     order = []
     for sec in re.findall(r'<section class="collection">(.*?)</section>', t, re.S):
-        group = re.search(r'<h2 class="group">(.*?)<span', sec, re.S).group(1).strip()
+        # The heading contains an inline SVG icon, so take the group-name span and
+        # strip tags rather than reading up to the first <span>.
+        inner = re.search(r'<span class="group-name">(.*?)</span>', sec, re.S).group(1)
+        group = re.sub(r"<[^>]+>", "", inner).strip()
         for href in re.findall(r'<a href="([^"]+\.html)">', sec):
             order.append((group, href))
     return order
@@ -48,7 +51,7 @@ def load(href, group, i):
         return html.unescape(r.group(1)) if r else None
 
     post = dict(
-        href=href, group=group, text=t,
+        href=href, group=group, text=t, slug=href[:-5],
         url=m(r'<link rel="canonical" href="([^"]+)"'),
         title=m(r"<h1>(.*?)</h1>"),
         summary=m(r'<meta name="description" content="([^"]*)"'),
@@ -85,7 +88,7 @@ def head_block(p):
         "dateModified": p["date"],
         "url": p["url"],
         "mainEntityOfPage": p["url"],
-        "image": f"{SITE}/og.png",
+        "image": f"{SITE}/og/{p['slug']}.png",
         "inLanguage": "en-GB",
         "author": {"@type": "Person", "name": "Nathan Cartmell", "url": f"{SITE}/"},
         "publisher": {"@type": "Person", "name": "Nathan Cartmell"},
@@ -93,6 +96,10 @@ def head_block(p):
                      "url": f"{SITE}/writing/"},
     }, indent=2, ensure_ascii=False).replace("</", "<\\/")
     body = (
+        f'<meta property="og:image" content="{SITE}/og/{p["slug"]}.png">\n'
+        '<meta property="og:image:width" content="1200">\n'
+        '<meta property="og:image:height" content="630">\n'
+        f'<meta property="og:image:alt" content="{html.escape(p["title"])} \u2014 ncartmell.co.uk">\n'
         '<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
         '<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">\n'
         '<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">\n'

@@ -4,8 +4,9 @@ Static site — no build step for the pages themselves. Edit the HTML and push.
 
 The one exception is `/writing/`, where several things are derived rather than written
 by hand: the Atom feed, `sitemap.xml`, the previous/next links at the foot of each post,
-the icon / `theme-color` / feed-autodiscovery / JSON-LD block in each post's head, and
-the post counts in the index lede and group headings. `tools/sync.py` owns all of them. Run it after adding or retitling a post and commit the result:
+the icon / `theme-color` / feed-autodiscovery / `og:image` / JSON-LD block in each
+post's head, and the post counts in the index lede and group headings. `tools/sync.py`
+owns all of them. Run it after adding or retitling a post and commit the result:
 
 ```sh
 python3 tools/sync.py
@@ -96,6 +97,32 @@ point where a phone screen renders the difference at all, so the nav pills read 
 text on mobile. They are now 1.21:1 (chip) and 1.34:1 against the page in both schemes.
 Keep them there: anything closer and the chips stop existing outside a colour-managed
 desktop display. The print block overrides both, so `cv.pdf` is unaffected.
+
+## Open Graph cards
+
+Each post has its own 1200x630 card in `og/`, built by `tools/og.py` from
+`tools/og-post.html`. It needs headless Chrome, so it is not part of `sync.py` and does
+not run in CI; `check.py` only verifies that the card each post points at exists. Run it
+after adding or retitling a post:
+
+```sh
+python3 tools/og.py
+```
+
+The card background is near-flat on purpose. The radial wash `og-card.html` uses dithers,
+which tripled the PNG for an image that is otherwise large flat areas of one colour —
+122KB a card against 36KB. All 21 come to about 680KB.
+
+`sync.py` sets `og:image` per post; do not add one by hand. The template carries none.
+
+### A parser gotcha, learned the hard way
+
+`read_order()` in `sync.py` reads the group name out of `writing/index.html`. When the
+group headings gained inline SVG icons, its old regex — everything up to the first
+`<span>` — started matching the empty string, and every `<category>` in the feed went
+blank without anything failing. It now reads `.group-name` and strips tags, and
+`check.py` rejects an empty or unrecognised feed category. If you change that heading
+markup again, check the feed.
 
 ## Claims with a shelf life
 

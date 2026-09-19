@@ -13,6 +13,7 @@ import xml.dom.minidom as minidom
 from urllib.parse import unquote
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+# og-card.html and tools/*.html are render templates, not pages of the site
 SKIP = {"og-card.html"}
 fails = []
 
@@ -23,7 +24,7 @@ def fail(msg):
 
 def pages():
     return [p for p in sorted(ROOT.rglob("*.html"))
-            if ".git" not in p.parts and p.name not in SKIP]
+            if ".git" not in p.parts and "tools" not in p.parts and p.name not in SKIP]
 
 
 def check_links():
@@ -71,6 +72,34 @@ def check_landmarks():
                 fail(f"missing {what}: {p.relative_to(ROOT)}")
 
 
+def check_og_cards():
+    """Every post's og:image must exist. The cards need Chrome to build, so CI
+    cannot regenerate them — it can only refuse to ship a post pointing at one
+    that is missing."""
+    for post in sorted((ROOT / "writing").glob("*.html")):
+        if post.name in ("index.html", "template.html"):
+            continue
+        m = re.search(r'<meta property="og:image" content="[^"]*?([^/"]+\.png)"', post.read_text())
+        if not m:
+            fail(f"no og:image: {post.relative_to(ROOT)}")
+        elif not (ROOT / "og" / m.group(1)).exists():
+            fail(f"og:image missing from disk: {post.relative_to(ROOT)} -> og/{m.group(1)}")
+
+
+def check_feed_categories():
+    """An empty <category> means the index parser silently stopped matching the
+    heading markup — which is exactly what adding the group icons did."""
+    feed = (ROOT / "feed.xml").read_text()
+    groups = {re.sub(r"<[^>]+>", "", m).strip() for m in
+              re.findall(r'<span class="group-name">(.*?)</span>',
+                         (ROOT / "writing/index.html").read_text(), re.S)}
+    for term in re.findall(r'<category term="([^"]*)"/>', feed):
+        if not term.strip():
+            fail("feed.xml has an empty <category term>")
+        elif term not in groups:
+            fail(f"feed category not a group in the index: {term!r}")
+
+
 def check_xml():
     for name in ("feed.xml", "sitemap.xml"):
         try:
@@ -79,7 +108,8 @@ def check_xml():
             fail(f"{name} does not parse: {e}")
 
 
-for fn in (check_links, check_posts_listed, check_json_ld, check_landmarks, check_xml):
+for fn in (check_links, check_posts_listed, check_json_ld, check_landmarks,
+           check_og_cards, check_feed_categories, check_xml):
     fn()
 
 if fails:
