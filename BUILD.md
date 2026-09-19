@@ -115,8 +115,15 @@ than helping. The mechanism would support it if that judgement ever changes.
 ## Outside
 
 `/outside/` is the non-work page — the one place on the site not about engineering. It
-uses the same sub-page furniture as `/writing/` and `/projects/`, and takes plain
-`<section><h2>` blocks. The running entry moved here off the homepage About section.
+uses the same sub-page furniture as `/writing/` and `/projects/`. Each section is a
+plain `<section>` whose `<h2>` wraps a `.group-name` span with an inline icon, reusing
+the `.group-name` / `.group-icon` rules from the writing index rather than adding new
+ones. The running entry moved here off the homepage About section.
+
+Keep the icons visually distinct at 15px. The first pass drew Magic as two offset cards
+and Reading as an open book, and at that size they were the same picture — two panels
+side by side. Magic is now a portrait card, which cannot be confused with a landscape
+book. Check any new icon against the others at actual size, not in isolation.
 
 ## Open Graph cards
 
