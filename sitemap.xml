@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://ncartmell.co.uk/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
   <url><loc>https://ncartmell.co.uk/projects/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ncartmell.co.uk/outside/</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://ncartmell.co.uk/writing/</loc><lastmod>2026-09-17</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html</loc><lastmod>2026-09-17</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html</loc><lastmod>2026-09-17</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>

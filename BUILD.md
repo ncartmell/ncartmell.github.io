@@ -29,8 +29,8 @@ python3 -m http.server 8799 &
 kill %1
 ```
 
-The print stylesheet hides: the Download CV button, the Strava line, the colophon, and
-the Selected Work entries marked `.print-hide`.
+The print stylesheet hides: the Download CV button, the colophon, and the Selected Work
+entries marked `.print-hide`.
 
 ## Regenerating og.png
 
@@ -97,6 +97,26 @@ point where a phone screen renders the difference at all, so the nav pills read 
 text on mobile. They are now 1.21:1 (chip) and 1.34:1 against the page in both schemes.
 Keep them there: anything closer and the chips stop existing outside a colour-managed
 desktop display. The print block overrides both, so `cv.pdf` is unaffected.
+
+## Topic chips
+
+Each post declares its own topics in one place — a `<meta name="topics">` line in its
+head — and `sync.py` renders them as chips under the date and adds each as a
+`<category>` in the feed alongside the group. Nothing is maintained twice.
+
+Topics must come from `tools/topics.txt`, and `check.py` fails on anything else. That
+list is the point: without it, "Data modelling" and "Data Modelling" quietly become two
+topics and the taxonomy is worthless. To add a topic, add it to the file first.
+
+They are deliberately not on the writing index. The index already gives every post a
+sentence of prose, and twenty-one rows of chips underneath that competes with it rather
+than helping. The mechanism would support it if that judgement ever changes.
+
+## Outside
+
+`/outside/` is the non-work page — the one place on the site not about engineering. It
+uses the same sub-page furniture as `/writing/` and `/projects/`, and takes plain
+`<section><h2>` blocks. The running entry moved here off the homepage About section.
 
 ## Open Graph cards
 

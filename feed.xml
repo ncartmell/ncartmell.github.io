@@ -19,6 +19,9 @@
     <published>2026-09-17T12:00:00+01:00</published>
     <updated>2026-09-17T12:00:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Provisioning"/>
+    <category term="Migration"/>
+    <category term="DNS"/>
     <summary>Rewriting a provisioning server from Python to Kotlin, and cutting thousands of desk phones over to it by DNS. The rewrite was the easy half.</summary>
   </entry>
 
@@ -29,6 +32,9 @@
     <published>2026-09-17T11:59:00+01:00</published>
     <updated>2026-09-17T11:59:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="XML"/>
+    <category term="Provisioning"/>
+    <category term="Debugging"/>
     <summary>Removing newlines from a valid XML document took out desk phone directories across an entire handset range. The XML stayed valid; the line length did not.</summary>
   </entry>
 
@@ -39,6 +45,8 @@
     <published>2026-09-17T11:58:00+01:00</published>
     <updated>2026-09-17T11:58:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Authentication"/>
+    <category term="Distributed systems"/>
     <summary>Digest authentication worked fine on a single Python process. Running several instances behind a load balancer turned a local variable into a distributed systems problem.</summary>
   </entry>
 
@@ -49,6 +57,9 @@
     <published>2026-09-17T11:57:00+01:00</published>
     <updated>2026-09-17T11:57:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Provisioning"/>
+    <category term="API design"/>
+    <category term="XML"/>
     <summary>You can abstract the transport. You cannot abstract the semantics. Notes on writing one provisioning interface across six manufacturers' firmware.</summary>
   </entry>
 
@@ -59,6 +70,9 @@
     <published>2026-09-17T11:56:00+01:00</published>
     <updated>2026-09-17T11:56:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Provisioning"/>
+    <category term="Performance"/>
+    <category term="Distributed systems"/>
     <summary>Splitting a monolith stopped any one service holding a whole directory in memory. It also made large directories slow to assemble — and the slowest client sets the limit.</summary>
   </entry>
 
@@ -69,6 +83,9 @@
     <published>2026-09-17T11:55:00+01:00</published>
     <updated>2026-09-17T11:55:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Provisioning"/>
+    <category term="Distributed systems"/>
+    <category term="Scheduling"/>
     <summary>Give every phone the same check-in interval and they synchronise. The obvious fix — random jitter — would have rebooted the estate on every cycle.</summary>
   </entry>
 
@@ -79,6 +96,9 @@
     <published>2026-09-17T11:54:00+01:00</published>
     <updated>2026-09-17T11:54:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Migration"/>
+    <category term="Data modelling"/>
+    <category term="Distributed systems"/>
     <summary>You cannot move a live platform to a new database in one step. Dual writes are how you make the migration boring — and most of the work is in the failure handling.</summary>
   </entry>
 
@@ -89,6 +109,8 @@
     <published>2026-09-17T11:53:00+01:00</published>
     <updated>2026-09-17T11:53:00+01:00</updated>
     <category term="The platform migration"/>
+    <category term="Observability"/>
+    <category term="Migration"/>
     <summary>Rolling tracing and structured logging across a platform. The instrumentation was the easy half; making the output mean something took longer.</summary>
   </entry>
 
@@ -99,6 +121,9 @@
     <published>2026-09-17T11:52:00+01:00</published>
     <updated>2026-09-17T11:52:00+01:00</updated>
     <category term="Regulated telecoms"/>
+    <category term="Emergency routing"/>
+    <category term="Data modelling"/>
+    <category term="Regulation"/>
     <summary>Two overlapping models had grown up for the address that determines where a 999 call is routed. Consolidating them meant deciding which one had ever been true.</summary>
   </entry>
 
@@ -109,6 +134,9 @@
     <published>2026-09-17T11:51:00+01:00</published>
     <updated>2026-09-17T11:51:00+01:00</updated>
     <category term="Regulated telecoms"/>
+    <category term="Number porting"/>
+    <category term="Regulation"/>
+    <category term="API design"/>
     <summary>Moving a phone number between providers is a regulated, document-backed handover between competitors, and the failure mode is a business losing the number on its van.</summary>
   </entry>
 
@@ -119,6 +147,8 @@
     <published>2026-09-17T11:50:00+01:00</published>
     <updated>2026-09-17T11:50:00+01:00</updated>
     <category term="Regulated telecoms"/>
+    <category term="Fraud"/>
+    <category term="Regulation"/>
     <summary>Toll fraud costs real money by the minute. The useful controls turned out to be graduated ones — risk scores that trigger verification rather than walls that block.</summary>
   </entry>
 
@@ -129,6 +159,8 @@
     <published>2026-09-17T11:49:00+01:00</published>
     <updated>2026-09-17T11:49:00+01:00</updated>
     <category term="Mobile clients"/>
+    <category term="Real-time"/>
+    <category term="Mobile"/>
     <summary>Building real-time calling into a mobile app means the operating system, your app and a websocket all hold an opinion about whether a call is happening. They disagree.</summary>
   </entry>
 
@@ -139,6 +171,9 @@
     <published>2026-09-17T11:48:00+01:00</published>
     <updated>2026-09-17T11:48:00+01:00</updated>
     <category term="Mobile clients"/>
+    <category term="Real-time"/>
+    <category term="Mobile"/>
+    <category term="Data modelling"/>
     <summary>The little light showing whether a colleague is free looks like one bit. It is a composite of registration, call state, do-not-disturb and queue availability, delivered to every client.</summary>
   </entry>
 
@@ -149,6 +184,8 @@
     <published>2026-09-17T11:47:00+01:00</published>
     <updated>2026-09-17T11:47:00+01:00</updated>
     <category term="Mobile clients"/>
+    <category term="Mobile"/>
+    <category term="Migration"/>
     <summary>Building a chat client inside a phone app over three years, and moving it from UIKit to SwiftUI in a single commit nobody scheduled.</summary>
   </entry>
 
@@ -159,6 +196,8 @@
     <published>2026-09-17T11:46:00+01:00</published>
     <updated>2026-09-17T11:46:00+01:00</updated>
     <category term="Mobile clients"/>
+    <category term="Mobile"/>
+    <category term="Releases"/>
     <summary>Shipping one codebase as several branded apps through two app stores. Release is not a deployment step, it is a dependency with its own deadlines and its own opinions.</summary>
   </entry>
 
@@ -169,6 +208,8 @@
     <published>2026-09-17T11:45:00+01:00</published>
     <updated>2026-09-17T11:45:00+01:00</updated>
     <category term="Platform and internal tools"/>
+    <category term="Internal tools"/>
+    <category term="Product"/>
     <summary>Maintaining the internal portal a company runs on. Your users sit near you, nothing is ever prioritised until it breaks, and it is the union of every other system you own.</summary>
   </entry>
 
@@ -179,6 +220,8 @@
     <published>2026-09-17T11:44:00+01:00</published>
     <updated>2026-09-17T11:44:00+01:00</updated>
     <category term="Platform and internal tools"/>
+    <category term="Authentication"/>
+    <category term="Data modelling"/>
     <summary>Single sign-on assumes an identity maps to an account. In a white-label platform it often maps to four, and the login flow has to cope before the user has proved anything.</summary>
   </entry>
 
@@ -189,6 +232,8 @@
     <published>2026-09-17T11:43:00+01:00</published>
     <updated>2026-09-17T11:43:00+01:00</updated>
     <category term="Platform and internal tools"/>
+    <category term="Authorisation"/>
+    <category term="Internal tools"/>
     <summary>Adding granular permissions to a portal that grew up without them, and keeping the interface honest about what a user can actually do.</summary>
   </entry>
 
@@ -199,6 +244,8 @@
     <published>2026-09-17T11:42:00+01:00</published>
     <updated>2026-09-17T11:42:00+01:00</updated>
     <category term="Platform and internal tools"/>
+    <category term="Scheduling"/>
+    <category term="Internal tools"/>
     <summary>Building call reporting end to end. The queries are the easy part; the hard parts are recurrence, drilldowns and deciding what a number means.</summary>
   </entry>
 
@@ -209,6 +256,9 @@
     <published>2026-09-17T11:41:00+01:00</published>
     <updated>2026-09-17T11:41:00+01:00</updated>
     <category term="Platform and internal tools"/>
+    <category term="Data modelling"/>
+    <category term="Product"/>
+    <category term="Caching"/>
     <summary>Selling hardware, numbers and contract addons through partners. What you can order depends on who you are, what you already have, and how long you signed up for.</summary>
   </entry>
 
@@ -219,6 +269,8 @@
     <published>2026-09-17T11:40:00+01:00</published>
     <updated>2026-09-17T11:40:00+01:00</updated>
     <category term="Platform and internal tools"/>
+    <category term="Migration"/>
+    <category term="Internal tools"/>
     <summary>Replacing the helpdesk your support team works in, without them stopping. The migration is the easy half; turning the old one off is the part that counts.</summary>
   </entry>
 

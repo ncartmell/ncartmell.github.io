@@ -93,11 +93,30 @@ def check_feed_categories():
     groups = {re.sub(r"<[^>]+>", "", m).strip() for m in
               re.findall(r'<span class="group-name">(.*?)</span>',
                          (ROOT / "writing/index.html").read_text(), re.S)}
+    topics = {l.strip() for l in (ROOT / "tools/topics.txt").read_text().splitlines() if l.strip()}
+    known = groups | topics
     for term in re.findall(r'<category term="([^"]*)"/>', feed):
         if not term.strip():
             fail("feed.xml has an empty <category term>")
-        elif term not in groups:
-            fail(f"feed category not a group in the index: {term!r}")
+        elif term not in known:
+            fail(f"feed category is neither a group nor a topic: {term!r}")
+
+
+def check_topics():
+    """Every post declares topics, and only from the controlled list in
+    tools/topics.txt. Without the list, "Data modelling" and "Data Modelling"
+    quietly become two topics."""
+    vocab = {l.strip() for l in (ROOT / "tools/topics.txt").read_text().splitlines() if l.strip()}
+    for post in sorted((ROOT / "writing").glob("*.html")):
+        if post.name == "index.html":
+            continue
+        m = re.search(r'<meta name="topics" content="([^"]*)"', post.read_text())
+        if not m or not m.group(1).strip():
+            fail(f"no topics declared: {post.relative_to(ROOT)}")
+            continue
+        for topic in (x.strip() for x in m.group(1).split(",")):
+            if topic not in vocab:
+                fail(f"topic not in tools/topics.txt: {post.relative_to(ROOT)} -> {topic!r}")
 
 
 def check_xml():
@@ -109,7 +128,7 @@ def check_xml():
 
 
 for fn in (check_links, check_posts_listed, check_json_ld, check_landmarks,
-           check_og_cards, check_feed_categories, check_xml):
+           check_og_cards, check_feed_categories, check_topics, check_xml):
     fn()
 
 if fails:

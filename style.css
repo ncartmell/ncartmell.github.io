@@ -210,7 +210,9 @@ footer a:hover{color:var(--accent); border-bottom-color:var(--accent)}
 /* ---------- articles ---------- */
 article{max-width:36rem}
 article h1{font-size:1.85rem; letter-spacing:-.021em; font-weight:650; line-height:1.2}
-.posted{font-family:var(--mono); font-size:.78rem; color:var(--faint); margin:.6rem 0 2rem}
+.posted{font-family:var(--mono); font-size:.78rem; color:var(--faint); margin:.6rem 0 .8rem}
+/* What a piece actually covers — the title alone rarely says. */
+.topics{display:flex; flex-wrap:wrap; gap:.35rem; margin:0 0 2.2rem; padding:0; list-style:none}
 article h2{
   font-family:var(--sans); font-size:1.12rem; font-weight:620; color:var(--fg);
   text-transform:none; letter-spacing:normal; border:0; padding:0;

@@ -7,6 +7,7 @@ order they are in. This script reads that order and rewrites:
   * feed.xml                    — the Atom feed
   * sitemap.xml                 — every public URL, with lastmod on the posts
   * the post counts in writing/index.html (the lede total and each group)
+  * the topic chips under each post's date, from its <meta name="topics"> line
   * the <!-- sync:head --> block in each post   (theme-color, feed link, JSON-LD)
   * the <!-- sync:nav --> block in each post    (previous / next)
 
@@ -56,9 +57,10 @@ def load(href, group, i):
         title=m(r"<h1>(.*?)</h1>"),
         summary=m(r'<meta name="description" content="([^"]*)"'),
         date=m(r'<time datetime="([^"]+)"'),
+        topics=[x.strip() for x in (m(r'<meta name="topics" content="([^"]*)"') or "").split(",") if x.strip()],
         stamp=(BASE - datetime.timedelta(minutes=i)).strftime("%Y-%m-%dT%H:%M:%S") + TZ,
     )
-    missing = [k for k in ("url", "title", "summary", "date") if not post[k]]
+    missing = [k for k in ("url", "title", "summary", "date", "topics") if not post[k]]
     if missing:
         sys.exit(f"{href}: missing {', '.join(missing)}")
     return post
@@ -68,13 +70,13 @@ def block(tag, body, indent=""):
     return f"{indent}<!-- sync:{tag} -->\n{body}\n{indent}<!-- /sync:{tag} -->"
 
 
-def replace_block(text, tag, new, anchor):
-    """Swap an existing sync block, or insert one before `anchor` the first time."""
+def replace_block(text, tag, new, anchor, after=False):
+    """Swap an existing sync block, or insert one at `anchor` the first time."""
     pat = re.compile(rf"[ \t]*<!-- sync:{tag} -->.*?<!-- /sync:{tag} -->\n?", re.S)
     if pat.search(text):
         return pat.sub(new + "\n", text, count=1)
     assert anchor in text, f"anchor {anchor!r} not found"
-    return text.replace(anchor, new + "\n" + anchor, 1)
+    return text.replace(anchor, anchor + new + "\n" if after else new + "\n" + anchor, 1)
 
 
 def head_block(p):
@@ -107,6 +109,11 @@ def head_block(p):
         '<script type="application/ld+json">\n' + ld + "\n</script>"
     )
     return block("head", body)
+
+
+def topics_block(p):
+    chips = "".join(f'<li class="chip">{esc(x)}</li>' for x in p["topics"])
+    return block("topics", f'    <ul class="topics">{chips}</ul>', "    ")
 
 
 def nav_block(prev, nxt):
@@ -144,6 +151,8 @@ def write_sitemap(posts):
             f'<priority>1.0</priority></url>',
             f'  <url><loc>{SITE}/projects/</loc><changefreq>monthly</changefreq>'
             f'<priority>0.6</priority></url>',
+            f'  <url><loc>{SITE}/outside/</loc><changefreq>monthly</changefreq>'
+            f'<priority>0.4</priority></url>',
             f'  <url><loc>{SITE}/writing/</loc><lastmod>{newest}</lastmod>'
             f'<changefreq>monthly</changefreq><priority>0.6</priority></url>']
     for p in posts:
@@ -175,7 +184,8 @@ def write_feed(posts):
                 f"    <id>{p['url']}</id>",
                 f"    <published>{p['stamp']}</published>",
                 f"    <updated>{p['stamp']}</updated>",
-                f'    <category term="{esc(p["group"])}"/>',
+                *[f'    <category term="{esc(c)}"/>'
+                  for c in [p["group"]] + p["topics"]],
                 f"    <summary>{esc(p['summary'])}</summary>",
                 "  </entry>", ""]
     out += ["</feed>", ""]
@@ -189,6 +199,9 @@ def main():
     for i, p in enumerate(posts):
         t = p["text"]
         t = replace_block(t, "head", head_block(p), '<link rel="stylesheet" href="../style.css">')
+        t = replace_block(t, "topics", topics_block(p),
+                          re.search(r'[ \t]*<div class="posted">.*?</div>\n', t).group(0),
+                          after=True)
         t = replace_block(t, "nav",
                           nav_block(posts[i - 1] if i else None,
                                     posts[i + 1] if i + 1 < len(posts) else None),
