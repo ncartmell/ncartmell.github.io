@@ -9,9 +9,11 @@ The "did you run sync.py" check is not here — CI does that by running the scri
 and failing if it produces a diff.
 """
 import json, pathlib, re, sys
+import cvstamp
 import xml.dom.minidom as minidom
 from urllib.parse import unquote
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 # og-card.html and tools/*.html are render templates, not pages of the site
 SKIP = {"og-card.html"}
@@ -76,9 +78,10 @@ def check_og_cards():
     """Every post's og:image must exist. The cards need Chrome to build, so CI
     cannot regenerate them — it can only refuse to ship a post pointing at one
     that is missing."""
-    for post in sorted((ROOT / "writing").glob("*.html")):
-        if post.name in ("index.html", "template.html"):
-            continue
+    pages = [p for p in sorted((ROOT / "writing").glob("*.html"))
+             if p.name not in ("index.html", "template.html")]
+    pages += [ROOT / s / "index.html" for s in ("writing", "projects", "outside")]
+    for post in pages:
         m = re.search(r'<meta property="og:image" content="[^"]*?([^/"]+\.png)"', post.read_text())
         if not m:
             fail(f"no og:image: {post.relative_to(ROOT)}")
@@ -119,6 +122,39 @@ def check_topics():
                 fail(f"topic not in tools/topics.txt: {post.relative_to(ROOT)} -> {topic!r}")
 
 
+def check_cv_stamp():
+    """cv.pdf is rendered from index.html and drifts silently. cv.stamp holds a
+    fingerprint of only the parts of the page the print stylesheet keeps, so
+    this fires when the printed CV is genuinely out of date and stays quiet for
+    head-only or .no-print edits."""
+    stamp = ROOT / "cv.stamp"
+    if not stamp.exists():
+        fail("cv.stamp missing — run: python3 tools/cvstamp.py --write")
+        return
+    if stamp.read_text().strip() != cvstamp.fingerprint():
+        fail("cv.pdf is stale: index.html's printed content changed. "
+             "Regenerate it (see BUILD.md), then: python3 tools/cvstamp.py --write")
+
+
+def check_seealso_titles():
+    """The 'Also in this series' blocks are hand-written. Their links resolve, but
+    nothing notices when a post is retitled and its neighbours go on using the
+    old name."""
+    titles = {}
+    for post in (ROOT / "writing").glob("*.html"):
+        m = re.search(r"<h1>(.*?)</h1>", post.read_text(), re.S)
+        if m:
+            titles[post.name] = re.sub(r"\s+", " ", m.group(1)).strip()
+    for post in sorted((ROOT / "writing").glob("*.html")):
+        for blob in re.findall(r'<div class="seealso">(.*?)</div>', post.read_text(), re.S):
+            for href, text in re.findall(r'<a href="([^"]+\.html)">(.*?)</a>', blob, re.S):
+                want = titles.get(href)
+                got = re.sub(r"\s+", " ", text).strip()
+                if want and got != want:
+                    fail(f"seealso text is stale: {post.relative_to(ROOT)} -> {href}: "
+                         f"says {got!r}, title is {want!r}")
+
+
 def check_xml():
     for name in ("feed.xml", "sitemap.xml"):
         try:
@@ -128,7 +164,8 @@ def check_xml():
 
 
 for fn in (check_links, check_posts_listed, check_json_ld, check_landmarks,
-           check_og_cards, check_feed_categories, check_topics, check_xml):
+           check_og_cards, check_feed_categories, check_topics,
+           check_cv_stamp, check_seealso_titles, check_xml):
     fn()
 
 if fails:

@@ -23,6 +23,34 @@ def size_for(title):
     return 82 if n <= 28 else 72 if n <= 40 else 64
 
 
+PAGES = [("writing", "Writing"), ("projects", "Projects"), ("outside", "Outside")]
+
+
+def render(tmp, page, out):
+    tmp.write_text(page)
+    subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+                    "--window-size=1200,630", f"--screenshot={out}", f"file://{tmp}"],
+                   capture_output=True)
+    return out.stat().st_size // 1024
+
+
+def section_cards(tmp):
+    """The three section pages shared og.png, which is the CV card with a photo on
+    it — wrong for /writing/ and actively misleading for /outside/."""
+    tpl = (HERE / "og-page.html").read_text()
+    for slug, title in PAGES:
+        src = (sync.ROOT / slug / "index.html").read_text()
+        sub = html.unescape(re.search(
+            r'<meta property="og:description" content="([^"]*)"', src).group(1))
+        sub = sub.replace("&mdash;", "\u2014").split(" \u2014 ")[-1]
+        page = (tpl.replace("__TITLE__", html.escape(title))
+                   .replace("__KICKER__", "ncartmell.co.uk")
+                   .replace("__SUB__", html.escape(sub))
+                   .replace("__SIZE__", "88"))
+        kb = render(tmp, page, OUT / f"{slug}.png")
+        print(f"  og/{slug}.png  ({kb}KB)  {title}")
+
+
 def main():
     if not pathlib.Path(CHROME).exists():
         sys.exit(f"Chrome not found at {CHROME}")
@@ -44,6 +72,7 @@ def main():
                         f"--screenshot={OUT / (slug + '.png')}", f"file://{tmp}"],
                        capture_output=True)
         print(f"  og/{slug}.png  ({(OUT / (slug + '.png')).stat().st_size // 1024}KB)  {title}")
+    section_cards(tmp)
     tmp.unlink(missing_ok=True)
     total = sum(p.stat().st_size for p in OUT.glob("*.png"))
     print(f"{len(order)} cards, {total // 1024}KB total")

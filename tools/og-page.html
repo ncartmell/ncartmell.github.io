@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{width:1200px; height:630px; overflow:hidden}
+  body{
+    background:#101215;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    color:#e6e8ec;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:0 96px; position:relative;
+  }
+  body::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(110,168,255,.05), transparent 45%);
+    pointer-events:none;
+  }
+  .inner{position:relative; z-index:1}
+  .kicker{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    font-size:25px; color:#7f8794; letter-spacing:.08em; text-transform:uppercase;
+    margin-bottom:34px;
+  }
+  h1{
+    font-size:__SIZE__px; line-height:1.08; letter-spacing:-.026em; font-weight:660;
+    max-width:940px;
+  }
+  .rule{width:88px; height:4px; background:#6ea8ff; border-radius:2px; margin:38px 0 28px}
+  .sub{font-size:31px; line-height:1.35; color:#a7aeb9; max-width:900px}
+  .group{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    font-size:23px; color:#c2c7d0; background:#22262e;
+    padding:9px 16px; border-radius:6px;
+  }
+  .who{
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+    font-size:23px; color:#7f8794; letter-spacing:.02em;
+  }
+</style>
+</head>
+<body>
+  <div class="inner">
+    <div class="kicker">__KICKER__</div>
+    <h1>__TITLE__</h1>
+    <div class="rule"></div>
+    <div class="sub">__SUB__</div>
+  </div>
+</body>
+</html>
