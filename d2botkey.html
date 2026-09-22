@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Authorisation code — Nathan Cartmell</title>
+<meta name="description" content="Callback page for a personal Discord bot's Bungie.net authorisation.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .code-box {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 1.05rem;
+    word-break: break-all;
+    padding: 1rem;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    margin: 1rem 0;
+    opacity: .95;
+  }
+  .copy-btn {
+    font: inherit;
+    padding: .55rem 1rem;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .copy-btn:hover { opacity: .75; }
+  .muted { opacity: .7; font-size: .92rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="subnav">
+    <a href="/">&larr; ncartmell.co.uk</a>
+  </nav>
+
+  <main id="main">
+    <h1 class="page-title">Authorisation code</h1>
+
+    <div id="result">
+      <p class="lede">Reading the code from the address bar&hellip;</p>
+    </div>
+
+    <p class="muted">
+      This page is the redirect target for a personal Discord bot. It reads the code out of
+      the URL in your browser and shows it to you. Nothing is sent anywhere, and nothing is
+      stored &mdash; the code only exists in this address bar.
+    </p>
+  </main>
+
+  <footer>
+    <span>Nathan Cartmell &mdash; <a href="/">ncartmell.co.uk</a></span>
+    <span><a href="mailto:me@ncartmell.co.uk">me@ncartmell.co.uk</a></span>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get('code');
+  var error = params.get('error');
+  var result = document.getElementById('result');
+
+  function text(tag, content, className) {
+    var el = document.createElement(tag);
+    el.textContent = content;
+    if (className) el.className = className;
+    return el;
+  }
+
+  if (error) {
+    result.replaceChildren(
+      text('p', 'Bungie refused the request: ' + error, 'lede'),
+      text('p', 'Start again with /link in Discord.', 'muted')
+    );
+    return;
+  }
+
+  if (!code) {
+    result.replaceChildren(
+      text('p', 'No code in the URL.', 'lede'),
+      text('p', 'This page only does something when Bungie redirects you here. Run /link in Discord to start.', 'muted')
+    );
+    return;
+  }
+
+  var box = text('div', code, 'code-box');
+  box.id = 'code';
+
+  var button = document.createElement('button');
+  button.className = 'copy-btn';
+  button.type = 'button';
+  button.textContent = 'Copy';
+  button.addEventListener('click', function () {
+    navigator.clipboard.writeText(code).then(function () {
+      button.textContent = 'Copied';
+      setTimeout(function () { button.textContent = 'Copy'; }, 2000);
+    }, function () {
+      // Clipboard access can be refused; selecting the text is the fallback.
+      var range = document.createRange();
+      range.selectNodeContents(box);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = 'Press Ctrl/Cmd+C';
+    });
+  });
+
+  result.replaceChildren(
+    text('p', 'Paste this into Discord with /link code:', 'lede'),
+    box,
+    button,
+    text('p', 'It is single-use and expires within a couple of minutes, so do it now.', 'muted')
+  );
+
+  // Leaving a live code in the history is untidy; drop the query once it is on screen.
+  if (window.history.replaceState) {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+</script>
+</body>
+</html>
