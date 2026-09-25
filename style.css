@@ -4,11 +4,15 @@
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
   --maxw:44rem;
+  /* Dot shading. A dot sitting on a tint of its own hue washes out, so in light mode it
+     is pushed toward black to separate the two. Dark mode already clears 3:1 untouched. */
+  --lang-ink:#000; --lang-ink-mix:20%;
 }
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#101215; --fg:#e6e8ec; --muted:#a7aeb9; --faint:#7f8794;
     --rule:#2b2f37; --accent:#6ea8ff; --chip-bg:#22262e; --chip-fg:#c2c7d0;
+    --lang-ink-mix:0%;
   }
 }
 
@@ -106,6 +110,26 @@ ul.plain li::marker{color:var(--faint)}
   color:var(--chip-fg); padding:.2rem .5rem; border-radius:4px; white-space:nowrap;
 }
 
+/* ---------- language marks ----------
+   A coloured dot and a faint tint on the language chip only, so each project has one
+   colour signature and the framework chips stay quiet behind it. Colours are the
+   GitHub Linguist ones, which is what these languages already look like everywhere else.
+
+   The tint is mixed against the existing chip background rather than set outright, so it
+   follows light, dark and print without three sets of values — and stays light enough
+   that --chip-fg keeps its contrast ratio in both themes. */
+.chip[data-lang]{
+  background:color-mix(in srgb, var(--lang) 16%, var(--chip-bg));
+}
+.chip[data-lang]::before{
+  content:""; display:inline-block; vertical-align:baseline;
+  width:.5em; height:.5em; margin-right:.42em; border-radius:50%;
+  background:color-mix(in srgb, var(--lang-ink) var(--lang-ink-mix), var(--lang));
+}
+.chip[data-lang="swift"]{--lang:#f05138}
+.chip[data-lang="kotlin"]{--lang:#a97bff}
+.chip[data-lang="java"]{--lang:#b07219}
+
 /* ---------- compact rows ---------- */
 .row{display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:.55rem}
 .row:last-child{margin-bottom:0}
@@ -166,6 +190,9 @@ footer a:hover{color:var(--accent); border-bottom-color:var(--accent)}
   .print-hide{display:none !important}
   h2{margin-bottom:.8rem}
   .head{margin-bottom:1.1rem}
+  /* Paper is monochrome here by design; a tint would print as an odd grey block. */
+  .chip[data-lang]{background:var(--chip-bg)}
+  .chip[data-lang]::before{background:#555}
 }
 
 /* ---------- sub-pages (writing, projects) ---------- */
