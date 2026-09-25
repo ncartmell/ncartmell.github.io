@@ -110,13 +110,20 @@
         <span class="chips">
           <span class="chip" data-lang="java">Java</span>
           <span class="chip">JDA</span>
+          <span class="chip">Bungie API</span>
+          <span class="chip">OAuth2</span>
         </span>
       </div>
       <p class="entry-note">
-        A Discord bot built on JDA, with a small client for the Bungie API behind it —
-        item lookups by manifest hash, the milestones active this week, and lifetime
-        stats for a player. Written to learn the library, and to have somewhere to point
-        Destiny 2 questions.
+        A Destiny 2 assistant on JDA, over a hand-rolled Bungie API client. Gear sets are
+        stored as item instance ids rather than the game&#x27;s twenty loadout slots, so a
+        set names the exact roll and brings back the subclass, mods, perks and shaders with
+        it. The game only accepts gear changes in orbit, so asking for one mid-raid queues
+        it and puts it on when you land. Names come from a manifest cache that streams the
+        190 MB definition table at startup and keeps only the fields it shows —
+        1.4 seconds and about 10 MB for 36,000 items. It also does Xûr, clear
+        counts, post-game reports, the postmaster, and an LFG board with a private voice
+        channel per fireteam.
       </p>
     </li>
   </ul>
