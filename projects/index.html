@@ -52,6 +52,7 @@
         <span class="chips">
           <span class="chip" data-lang="kotlin">Kotlin Multiplatform</span>
           <span class="chip">Compose</span>
+          <span class="chip">Bluetooth LE</span>
           <span class="chip">GitHub Actions</span>
         </span>
       </div>
@@ -60,9 +61,13 @@
         Windows, macOS and Linux. Five formats — free-for-all, Star, Two-Headed Giant,
         Archenemy and Emperor — are all arrangements of teams, so the engine has one win
         rule rather than five. The board rearranges itself for the format and turns each
-        panel to face the person it belongs to. The rules live in a pure-Kotlin module
-        with no UI dependency, so they test on any JDK with no simulator or Android SDK
-        involved.
+        panel to face the person it belongs to. On Android and iOS it will also read
+        rolls from a Pixels Bluetooth die: to decide who goes first the die is passed
+        round the table in the order people are really sitting in, lighting up in the
+        colour of whoever it is waiting on. The rules live in a pure-Kotlin module with
+        no UI dependency, so they test on any JDK with no simulator or Android SDK
+        involved — and how a tie is broken is a rule, so the die is settled by the same
+        code the app's own dice go through.
       </p>
       <p class="entry-links">
         <a href="https://github.com/ncartmell/mtg-life-tracker/releases/latest">Download</a>
