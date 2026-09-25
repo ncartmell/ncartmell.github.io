@@ -87,6 +87,25 @@
     </li>
     <li>
       <div class="project-head">
+        <a href="https://github.com/ncartmell/vapor-webhook-relay">vapor-webhook-relay</a>
+        <span class="chips">
+          <span class="chip">Swift</span>
+          <span class="chip">Vapor</span>
+          <span class="chip">Fluent</span>
+          <span class="chip">PostgreSQL</span>
+        </span>
+      </div>
+      <p class="entry-note">
+        A webhook relay, and the Swift counterpart to the Ktor service above. Verifies
+        inbound signatures in constant time over the raw body, stores each event once
+        behind a unique index rather than a check-then-insert, and delivers onwards with
+        exponential backoff, jitter and a dead-letter queue. The work queue is a Postgres
+        table drained with <code>FOR UPDATE SKIP LOCKED</code>, so an event and its
+        deliveries are enqueued in one transaction.
+      </p>
+    </li>
+    <li>
+      <div class="project-head">
         <a href="https://github.com/ncartmell/discord-bot">discord-bot</a>
         <span class="chips">
           <span class="chip">Java</span>
