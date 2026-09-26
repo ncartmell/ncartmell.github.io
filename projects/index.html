@@ -131,6 +131,31 @@
         channel per fireteam.
       </p>
     </li>
+    <li>
+      <div class="project-head">
+        <a href="https://github.com/ncartmell/ncartmell.github.io">ncartmell.github.io</a>
+        <span class="chips">
+          <span class="chip" data-lang="python">Python</span>
+          <span class="chip">Static site</span>
+          <span class="chip">GitHub Actions</span>
+        </span>
+      </div>
+      <p class="entry-note">
+        This site. The pages are hand-written HTML with no build step, but the parts that
+        are derived rather than written &mdash; the Atom feed, the sitemap, each post&#x27;s
+        head block and its previous/next links, the counts in the index &mdash; belong to
+        <code>sync.py</code>, which edits only the regions it marks and leaves everything
+        around them alone. CI runs it and fails on a diff, so a stale feed is caught on the
+        push that caused it rather than noticed months later. <code>check.py</code> covers
+        the rest of what breaks silently on a static site: a link pointing at nothing, a
+        post on disk that was never listed, a topic outside the controlled vocabulary, an
+        og:image referenced but missing, a &ldquo;see also&rdquo; still using a title that
+        has since changed. The printed CV is the same idea from another angle &mdash;
+        <code>cvstamp.py</code> fingerprints only the part of the page the print stylesheet
+        keeps, so it objects when the PDF is genuinely out of date and stays quiet for edits
+        that would never reach it.
+      </p>
+    </li>
   </ul>
 
   </main>

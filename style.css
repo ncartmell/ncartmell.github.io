@@ -129,6 +129,7 @@ ul.plain li::marker{color:var(--faint)}
 .chip[data-lang="swift"]{--lang:#f05138}
 .chip[data-lang="kotlin"]{--lang:#a97bff}
 .chip[data-lang="java"]{--lang:#b07219}
+.chip[data-lang="python"]{--lang:#3572a5}
 
 /* ---------- compact rows ---------- */
 .row{display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:.55rem}
