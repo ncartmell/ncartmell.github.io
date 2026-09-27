@@ -140,10 +140,24 @@
     <p>
       One was a security problem rather than a scheduling one. The design had a one-time-code
       sender reachable from the public site with nothing in front of it — no authentication,
-      no rate limit, no cooldown. Left as drawn, that is an open relay for sending codes to
-      arbitrary numbers at somebody else's expense. That did not get cut for time; it got
-      redrawn, and the version that shipped has a cooldown on resends and a ceiling on how
-      many codes can be sent.
+      no rate limit, no cooldown. Left as drawn, that is a way for anyone to send messages to
+      arbitrary numbers at our expense: a fraud surface and a per-message bill at the same
+      time.
+    </p>
+
+    <p>
+      The reflex is to harden it. Put a cooldown on resends, cap how many codes one address can
+      ask for, rate limit the endpoint. The better question was what the verification was
+      buying us, and the answer was not much — so it came out altogether rather than getting
+      a set of controls built around it.
+    </p>
+
+    <p>
+      Deleting a feature is a harder argument to make than securing one, because hardening
+      looks like diligence and removal looks like retreat. It is usually the cheaper answer.
+      Something that is gone needs no rate limit, no monitoring, no alert threshold and no
+      incident response, and it cannot be got wrong later by someone who does not know why the
+      controls are there.
     </p>
 
     <p>
