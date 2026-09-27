@@ -172,6 +172,40 @@
 
     <div class="job">
       <div class="job-top">
+        <h3>Consumer landline launch</h3>
+        <span class="when">2026</span>
+      </div>
+      <ul>
+        <li>
+          <a href="https://golandline.com">GoLandline</a> is a standalone consumer brand — a
+          subscription landline sold direct, with its own storefront, checkout and dashboard, on
+          the platform behind our business products. I joined two weeks from a fixed launch date
+          with much of it unfinished, and picked up running it as well as building on it:
+          sequencing the work, holding contributors to dates, keeping QA builds quick to turn
+          round.
+        </li>
+        <li>
+          Most of the value was in deciding what not to build. The scope had been written months
+          earlier by people who did not know the platform, so it assumed behaviour we could not
+          offer and missed capability we already had. Call recording, for one, lost its own
+          module and became an account flag that existed already.
+        </li>
+        <li>
+          Built the internal side so support could answer for the product on day one: order
+          search, a read-only subscription view, a tool to re-run a provisioning order that
+          stalled part-way, and a report of accounts whose billing and telephony state had
+          drifted apart.
+        </li>
+        <li>
+          The price on a subscription is not what the customer pays: tax and discounts only
+          exist once an invoice is drawn, so anything quoting a real figure has to ask Stripe to
+          preview the invoice rather than read the price.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-top">
         <h3>Provisioning platform migration</h3>
         <span class="when">2026</span>
       </div>
