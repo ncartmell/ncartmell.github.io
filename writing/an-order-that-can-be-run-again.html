@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>An order that can be run again — Nathan Cartmell</title>
+<meta name="description" content="One button buys a phone number. Behind it is a sequence of steps against systems that occasionally fail, and the only useful design question is what happens then.">
+<meta name="topics" content="Provisioning, Distributed systems">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="An order that can be run again">
+<meta property="og:description" content="One button buys a phone number. The design question is what happens when a step fails.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- sync:head -->
+<meta property="og:image" content="https://ncartmell.co.uk/og/an-order-that-can-be-run-again.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="An order that can be run again — ncartmell.co.uk">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="application/atom+xml" title="Nathan Cartmell — Writing" href="/feed.xml">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "An order that can be run again",
+  "description": "One button buys a phone number. Behind it is a sequence of steps against systems that occasionally fail, and the only useful design question is what happens then.",
+  "datePublished": "2026-09-27",
+  "dateModified": "2026-09-27",
+  "url": "https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html",
+  "mainEntityOfPage": "https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html",
+  "image": "https://ncartmell.co.uk/og/an-order-that-can-be-run-again.png",
+  "inLanguage": "en-GB",
+  "author": {
+    "@type": "Person",
+    "name": "Nathan Cartmell",
+    "url": "https://ncartmell.co.uk/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Nathan Cartmell"
+  },
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Nathan Cartmell — Writing",
+    "url": "https://ncartmell.co.uk/writing/"
+  }
+}
+</script>
+<!-- /sync:head -->
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="skip no-print" href="#main">Skip to content</a>
+
+  <nav class="subnav">
+    <span class="navgroup"><a href="../">&larr; ncartmell.co.uk</a> <span class="sep">/</span> <a href="./">Writing</a></span>
+    <a href="../projects/">Projects &rarr;</a>
+  </nav>
+
+  <main id="main">
+  <article>
+    <h1>An order that can be run again</h1>
+    <div class="posted"><time datetime="2026-09-27">27 September 2026</time></div>
+    <!-- sync:topics -->
+    <ul class="topics"><li class="chip">Provisioning</li><li class="chip">Distributed systems</li></ul>
+    <!-- /sync:topics -->
+
+    <p>
+      The product is deliberately simple to buy. One page, one button, card details, done —
+      and a working phone number on the other side as quickly as we can manage it. There is no
+      configuration step, no options, nothing to choose.
+    </p>
+
+    <p>
+      That simplicity is entirely on the customer's side. Behind the button is a sequence of
+      things that have to happen in order, against several systems, some of which are not ours.
+      A number has to be allocated from a range. An account has to exist to attach it to. The
+      telephony platform has to be told about both. Mailboxes and defaults have to be set up so
+      the thing actually answers when somebody rings it.
+    </p>
+
+    <p>
+      Every one of those can fail, and some of them fail in ways that have nothing to do with
+      us. So the design question is not how to make the sequence reliable. It is what the system
+      does when part of it does not work.
+    </p>
+
+    <h2>Steps, not a function</h2>
+
+    <p>
+      The thing that makes this tractable is refusing to treat provisioning as one operation.
+      It is a list of named steps, each recorded as it completes.
+    </p>
+
+    <p>
+      That sounds like bookkeeping overhead until the first failure. If provisioning is a single
+      function that either worked or did not, a failure three-quarters of the way through leaves
+      you with no idea which quarter is outstanding. You cannot re-run it, because the parts that
+      succeeded will be attempted again, and allocating a second number to somebody who already
+      has one is worse than the original failure. So you end up unpicking it by hand, from logs.
+    </p>
+
+    <p>
+      With the steps recorded, re-running is the obvious move: start at the top, skip what is
+      already done, carry on from the first thing that is not. The order matters and it has to be
+      deterministic, because a re-run that executes the steps in a different sequence is a
+      different operation.
+    </p>
+
+    <p>
+      Splitting them finely is worth it too. A step that does two things is a step you cannot
+      half-complete, which means any failure inside it re-does both.
+    </p>
+
+    <h2>Nothing tells you it stalled</h2>
+
+    <p>
+      The failure I care most about is not the one that throws. It is the one where an order
+      simply stops.
+    </p>
+
+    <p>
+      A step calls something external, the call does not come back, nothing raises, and the
+      order sits at step four indefinitely. Nobody finds out. The customer has paid, the
+      subscription is active, and from the billing side everything looks correct — because from
+      the billing side it is. There is no error anywhere, and no alert, because nothing failed.
+      It just did not finish.
+    </p>
+
+    <p>
+      The answer is not cleverness, it is asking the question. There is a query for orders that
+      started and have not finished within a sensible window, it is exposed so support can see
+      it, and the same orders can be pushed back onto the queue from the same place. Most of the
+      value of that is not the requeue button. It is that somebody finds out on the day rather
+      than when the customer rings up.
+    </p>
+
+    <h2>The two halves have to agree</h2>
+
+    <p>
+      The related problem is slower and quieter. Payment and telephony are two systems with two
+      opinions, and they can drift.
+    </p>
+
+    <p>
+      A subscription is active but the number was never provisioned. A subscription has been
+      cancelled but the service is still live. Neither system is wrong about its own half. There
+      is no error on either side, and nothing brings the two views together unless something is
+      built specifically to do it.
+    </p>
+
+    <p>
+      So something is: a report of accounts whose billing state and telephony state disagree. It
+      is not sophisticated — it is a comparison — but it catches the class of problem that
+      produces no signal at all. A customer paying for something they do not have, or holding
+      something they stopped paying for, are both bad and neither announces itself.
+    </p>
+
+    <h2>Fast, and honest when it is not</h2>
+
+    <p>
+      The other half of a one-button purchase is that the customer is watching. They have just
+      paid and they are waiting for a number, so the sequence should finish in seconds rather
+      than minutes, and normally does.
+    </p>
+
+    <p>
+      When it does not, the temptation is to hide it — keep a spinner going, show a number that
+      is not quite live yet, tell them it is ready and hope the last step lands. That converts a
+      delay into a support ticket, because the customer will try to use it.
+    </p>
+
+    <p>
+      An order that is still in progress says so. An order that stalled is visible to the people
+      who can do something about it before the customer has to explain it to them. Being quick
+      in the normal case and truthful in the abnormal one is a better trade than appearing quick
+      in both.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Record the steps, not the outcome.</strong> A process that can only report success
+      or failure cannot be resumed, and anything that cannot be resumed gets finished by a person
+      reading logs.
+    </p>
+
+    <p>
+      <strong>Design the re-run before you need it.</strong> Skipping completed work and running
+      in a fixed order are what make a retry safe. Retrofitting that onto a process that already
+      has live orders in it is considerably less pleasant.
+    </p>
+
+    <p>
+      <strong>The stall is worse than the error.</strong> Failures announce themselves. Something
+      that stops halfway produces no signal at all, so you have to go and ask — a query for things
+      that started and never finished is a small amount of code for a whole category of problem.
+    </p>
+
+    <p>
+      <strong>Two authoritative systems need a third thing comparing them.</strong> When each is
+      correct about its own half, disagreement between them is invisible from inside either one.
+    </p>
+
+  </article>
+  </main>
+
+  <!-- sync:nav -->
+  <nav class="postnav">
+    <a class="prev" href="let-stripe-own-the-money.html"><span class="dir">Previous</span>Letting the payment provider own the money</a>
+    <a class="next" href="support-needs-it-on-day-one.html"><span class="dir">Next</span>Support needs it on day one</a>
+  </nav>
+  <!-- /sync:nav -->
+  <footer>
+    <span>Nathan Cartmell &mdash; <a href="/">ncartmell.co.uk</a></span>
+    <span><a href="mailto:me@ncartmell.co.uk">me@ncartmell.co.uk</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

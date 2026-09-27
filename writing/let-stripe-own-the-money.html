@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Letting the payment provider own the money — Nathan Cartmell</title>
+<meta name="description" content="Stripe owns pricing, subscriptions and cancellations; our service listens. What that buys, and the one thing it means you can never assume.">
+<meta name="topics" content="Product, Billing, API design">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/let-stripe-own-the-money.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Letting the payment provider own the money">
+<meta property="og:description" content="Stripe owns pricing and subscriptions; our service listens. What that buys, and what it means you can never assume.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/let-stripe-own-the-money.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- sync:head -->
+<meta property="og:image" content="https://ncartmell.co.uk/og/let-stripe-own-the-money.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Letting the payment provider own the money — ncartmell.co.uk">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="application/atom+xml" title="Nathan Cartmell — Writing" href="/feed.xml">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Letting the payment provider own the money",
+  "description": "Stripe owns pricing, subscriptions and cancellations; our service listens. What that buys, and the one thing it means you can never assume.",
+  "datePublished": "2026-09-27",
+  "dateModified": "2026-09-27",
+  "url": "https://ncartmell.co.uk/writing/let-stripe-own-the-money.html",
+  "mainEntityOfPage": "https://ncartmell.co.uk/writing/let-stripe-own-the-money.html",
+  "image": "https://ncartmell.co.uk/og/let-stripe-own-the-money.png",
+  "inLanguage": "en-GB",
+  "author": {
+    "@type": "Person",
+    "name": "Nathan Cartmell",
+    "url": "https://ncartmell.co.uk/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Nathan Cartmell"
+  },
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Nathan Cartmell — Writing",
+    "url": "https://ncartmell.co.uk/writing/"
+  }
+}
+</script>
+<!-- /sync:head -->
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="skip no-print" href="#main">Skip to content</a>
+
+  <nav class="subnav">
+    <span class="navgroup"><a href="../">&larr; ncartmell.co.uk</a> <span class="sep">/</span> <a href="./">Writing</a></span>
+    <a href="../projects/">Projects &rarr;</a>
+  </nav>
+
+  <main id="main">
+  <article>
+    <h1>Letting the payment provider own the money</h1>
+    <div class="posted"><time datetime="2026-09-27">27 September 2026</time></div>
+    <!-- sync:topics -->
+    <ul class="topics"><li class="chip">Product</li><li class="chip">Billing</li><li class="chip">API design</li></ul>
+    <!-- /sync:topics -->
+
+    <p>
+      The billing design for our consumer landline product is one sentence: Stripe owns the
+      money, and our service listens.
+    </p>
+
+    <p>
+      Stripe holds the product and its price. It holds the subscription, the trial, the
+      renewal, the discount codes and the tax treatment. It runs the cancellation, and the
+      hosted portal where a customer changes their card. Our side does not model any of that.
+      It subscribes to the events, and reacts.
+    </p>
+
+    <p>
+      That sounds like laziness, or at least like the path of least resistance under a
+      deadline. It was partly that. It also turned out to be the right call for a reason that
+      has nothing to do with engineering effort.
+    </p>
+
+    <h2>The people who change prices are not engineers</h2>
+
+    <p>
+      Pricing does not belong to the engineering team. Neither do grace periods, discount
+      campaigns, trial lengths, or the wording of the email that goes out when a payment
+      fails. Those belong to marketing, product and finance, and they change on their
+      timescale, which is not the release timescale.
+    </p>
+
+    <p>
+      If price lives in our configuration, every one of those changes is a ticket, a pull
+      request, a review and a deploy. Not because the change is hard, but because we put it
+      somewhere that requires us. The team that owns the decision has to queue behind the
+      team that owns the field.
+    </p>
+
+    <p>
+      Putting it in Stripe means finance changes the price in Stripe. Marketing runs a
+      discount in Stripe. Nobody asks us, and — this is the part that matters — the backend
+      does not change behaviour when they do. It carries out the same process against whatever
+      the subscription now says. There is no deploy, because there is nothing to deploy.
+    </p>
+
+    <p>
+      The general form of this: when you model something a provider already models, you are
+      not just duplicating data. You are moving the authority for a decision into your release
+      cycle, and handing yourself the job of keeping two versions of the truth in step forever.
+    </p>
+
+    <h2>The price is not what they pay</h2>
+
+    <p>
+      There is one assumption this design makes tempting, and it is wrong.
+    </p>
+
+    <p>
+      Having put the price in Stripe, the obvious way to show a customer what they will pay is
+      to read the price back out. It is right there on the product, it is a single field, and
+      for a plain subscription with no complications it is even correct.
+    </p>
+
+    <p>
+      It is not the amount. Tax is applied to an invoice, not to a price. A discount code
+      exists as something applied when the invoice is drawn. Proration on a mid-cycle change is
+      calculated at the moment of the change. None of that lives on the price, because none of
+      it is a property of the product — it is a property of this customer buying it, now.
+    </p>
+
+    <p>
+      So anything quoting a real figure has to ask Stripe to draw the invoice first and read
+      the total off that, rather than read the price. In Stripe's API that is a preview: you
+      ask what the next invoice would look like, and use the number it gives you.
+    </p>
+
+    <p>
+      This shows up in more places than you would expect. The dashboard telling someone what
+      their next payment will be. The cancellation flow telling them what they are giving up
+      and when it lapses. Any email with a figure in it. Every one of those has to go and ask,
+      and none of them can shortcut to the price — including, particularly, the one where the
+      customer is already unhappy and about to check your arithmetic.
+    </p>
+
+    <h2>What you still have to own</h2>
+
+    <p>
+      Delegating the money does not delegate everything, and the boundary is worth being
+      explicit about.
+    </p>
+
+    <p>
+      Stripe knows a subscription is active. It does not know whether the customer actually has
+      a working phone number, because that is our side of the transaction. So the thing our
+      service owns is the mapping between the two: this subscription corresponds to this
+      provisioned service, and those two facts should agree.
+    </p>
+
+    <p>
+      They can stop agreeing. A payment can succeed while provisioning fails. A cancellation
+      can be processed while the number is still live. Neither system is wrong on its own terms
+      — they just disagree, and nothing notices unless something is specifically looking. So
+      there is a report that looks: accounts where the billing state and the telephony state
+      have drifted apart. It is the piece of the design that exists precisely because the rest
+      of it is delegated.
+    </p>
+
+    <p>
+      That is the honest trade. Handing the money to a provider removes an enormous amount of
+      state you would otherwise own, and adds exactly one new problem: you now have two sources
+      of truth that are each authoritative about different halves of the same customer, and
+      keeping them consistent is a job nobody else will do for you.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Ask who changes this, and how often.</strong> If the answer is a team that is not
+      yours, on a cadence that is not your release cadence, storing it yourself makes you a
+      bottleneck for a decision you do not own.
+    </p>
+
+    <p>
+      <strong>A price is not an amount.</strong> Tax, discounts and proration only exist once an
+      invoice is drawn. Any figure shown to a customer has to come from the invoice, and the
+      shortcut is correct just often enough in testing to survive to production.
+    </p>
+
+    <p>
+      <strong>Delegating state creates exactly one new obligation.</strong> Whatever you hand
+      over, you now own the correspondence between their view and yours — and you should build
+      the thing that checks it, because the failure is silent by construction.
+    </p>
+
+  </article>
+  </main>
+
+  <!-- sync:nav -->
+  <nav class="postnav">
+    <a class="prev" href="what-you-cut-when-the-date-is-fixed.html"><span class="dir">Previous</span>What you cut when the date is fixed</a>
+    <a class="next" href="an-order-that-can-be-run-again.html"><span class="dir">Next</span>An order that can be run again</a>
+  </nav>
+  <!-- /sync:nav -->
+  <footer>
+    <span>Nathan Cartmell &mdash; <a href="/">ncartmell.co.uk</a></span>
+    <span><a href="mailto:me@ncartmell.co.uk">me@ncartmell.co.uk</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

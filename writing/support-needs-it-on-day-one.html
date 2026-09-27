@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Support needs it on day one — Nathan Cartmell</title>
+<meta name="description" content="Nobody had specified what support would need to answer for a new product. Low traffic is not the same as low stakes: one customer nobody can help is still a bad day.">
+<meta name="topics" content="Internal tools, Product">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Support needs it on day one">
+<meta property="og:description" content="Low traffic is not the same as low stakes. One customer nobody can help is still a bad day.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- sync:head -->
+<meta property="og:image" content="https://ncartmell.co.uk/og/support-needs-it-on-day-one.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Support needs it on day one — ncartmell.co.uk">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="application/atom+xml" title="Nathan Cartmell — Writing" href="/feed.xml">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Support needs it on day one",
+  "description": "Nobody had specified what support would need to answer for a new product. Low traffic is not the same as low stakes: one customer nobody can help is still a bad day.",
+  "datePublished": "2026-09-27",
+  "dateModified": "2026-09-27",
+  "url": "https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html",
+  "mainEntityOfPage": "https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html",
+  "image": "https://ncartmell.co.uk/og/support-needs-it-on-day-one.png",
+  "inLanguage": "en-GB",
+  "author": {
+    "@type": "Person",
+    "name": "Nathan Cartmell",
+    "url": "https://ncartmell.co.uk/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Nathan Cartmell"
+  },
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Nathan Cartmell — Writing",
+    "url": "https://ncartmell.co.uk/writing/"
+  }
+}
+</script>
+<!-- /sync:head -->
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="skip no-print" href="#main">Skip to content</a>
+
+  <nav class="subnav">
+    <span class="navgroup"><a href="../">&larr; ncartmell.co.uk</a> <span class="sep">/</span> <a href="./">Writing</a></span>
+    <a href="../projects/">Projects &rarr;</a>
+  </nav>
+
+  <main id="main">
+  <article>
+    <h1>Support needs it on day one</h1>
+    <div class="posted"><time datetime="2026-09-27">27 September 2026</time></div>
+    <!-- sync:topics -->
+    <ul class="topics"><li class="chip">Internal tools</li><li class="chip">Product</li></ul>
+    <!-- /sync:topics -->
+
+    <p>
+      Nothing in the scope for our new consumer product said what the support team would need.
+      Not as an oversight anybody argued for — it simply was not there. The requirements covered
+      what the customer would see and what the business wanted to sell, and stopped.
+    </p>
+
+    <p>
+      That is an easy thing to leave out, because the argument for leaving it out is genuinely
+      reasonable. A new product launches with no customers. Volume builds slowly. Whatever
+      support needs can be added once there is enough demand to know what they actually need,
+      and in the meantime the engineers can answer the occasional question directly.
+    </p>
+
+    <p>
+      I did not agree with it, and the reason is that low traffic is not the same as low stakes.
+    </p>
+
+    <h2>One is enough to be a problem</h2>
+
+    <p>
+      On day one you might have a handful of customers. If one of them has a problem and the
+      person answering the phone cannot see their order, cannot tell whether they were charged,
+      and cannot see whether their number was ever set up, that is not a minor gap. It is an
+      escalation, immediately, on the day the product launched, about the only customers you
+      have.
+    </p>
+
+    <p>
+      The engineers-will-answer-it plan also does not survive contact with reality. It means
+      every question goes to whoever built it, the answer takes as long as it takes them to
+      notice, and it is delivered by reading a database. That is fine for one question. It is
+      unworkable by the third, and the third arrives sooner than the volume projections suggest
+      because early customers are disproportionately likely to hit edges.
+    </p>
+
+    <p>
+      The asymmetry is what settles it. Building the tooling up front costs a few days. Not
+      building it costs nothing at all, right up until it costs an escalation about a customer
+      nobody can help, in the launch week, which is the worst possible week for it.
+    </p>
+
+    <h2>Specifying it myself</h2>
+
+    <p>
+      Since nobody had written down what support needed, I worked from having been the person on
+      the other end of it. I spent two years in technical support on this platform before moving
+      to engineering, and I maintain the internal portal the support team uses now.
+    </p>
+
+    <p>
+      That turns out to be the whole trick. The question is not "what data could we expose" — it
+      is "what is the first thing somebody types when a customer rings up, and does it work".
+      The answer is almost always an identifier the customer can read out. So the first thing
+      built was order search, because the order number is the thing on the confirmation email in
+      front of the customer.
+    </p>
+
+    <p>
+      From there it is the questions that actually get asked. Did they pay, and for what — a
+      read-only view of the subscription, enough to answer without exposing anything the agent
+      has no business changing. Did their number get set up, and if it did not, can we make it
+      happen now — the provisioning state, with the ability to re-run an order that stalled
+      part-way. Are they being billed for something they have not got — the report comparing
+      billing state against telephony state.
+    </p>
+
+    <p>
+      And the mundane one that gets forgotten: the ticketing system has to know the product
+      exists. A customer of a new brand raising a ticket needs it routed to the right place, with
+      the right branding on the reply, or the answer they get is addressed from the wrong company.
+    </p>
+
+    <h2>Read-only is a feature</h2>
+
+    <p>
+      Most of what I built is read-only, which was deliberate rather than a shortcut.
+    </p>
+
+    <p>
+      The two actions available are re-running a stalled provisioning order and raising a ticket.
+      Everything else answers a question. That is not because support cannot be trusted; it is
+      that a launch-week tool built quickly is exactly the wrong place to put a write path into
+      billing. Being able to see the state resolves most of the calls. Being able to change it
+      adds a way to make things worse at the moment there is least time to notice.
+    </p>
+
+    <p>
+      The re-run is the exception because it is safe by construction — the order is a sequence of
+      recorded steps, so running it again skips what already happened. An action that is
+      idempotent is a very different proposition from one that is not.
+    </p>
+
+    <h2>The part that is not software</h2>
+
+    <p>
+      The tooling is half of it. The other half is that nobody knows the product exists.
+    </p>
+
+    <p>
+      A new brand means the support team has never seen it, does not know what the customer
+      bought, does not know what the dashboard looks like from the customer's side, and does not
+      know which of their existing habits do not apply. Handing them a set of screens without
+      that is handing them a puzzle.
+    </p>
+
+    <p>
+      So I wrote the guide as well: what the product is, where it appears in the portal they
+      already use, what each screen is telling them, and what to do about the cases that have an
+      answer. Writing it also found gaps — explaining how an agent would handle a scenario is a
+      quick way to discover there is no way to handle it.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Low volume is not low stakes.</strong> The argument for deferring internal tooling
+      is always about traffic, and traffic is the wrong measure. The cost of one unanswerable
+      customer does not scale down with how few of them there are.
+    </p>
+
+    <p>
+      <strong>Start from the identifier the customer can read out.</strong> Tooling designed from
+      the data model gives you lookups by the wrong key. The first thing built should match the
+      first thing said on the phone.
+    </p>
+
+    <p>
+      <strong>Read-only answers most of it.</strong> Visibility resolves the majority of calls
+      without adding a way to make things worse. Add write paths deliberately, starting with the
+      ones that are safe to repeat.
+    </p>
+
+    <p>
+      <strong>Write the guide, and let it find your gaps.</strong> Describing how somebody would
+      handle a case is the cheapest way to notice that they could not.
+    </p>
+
+  </article>
+  </main>
+
+  <!-- sync:nav -->
+  <nav class="postnav">
+    <a class="prev" href="an-order-that-can-be-run-again.html"><span class="dir">Previous</span>An order that can be run again</a>
+    <a class="next" href="the-estate-is-the-hard-part.html"><span class="dir">Next</span>The hard part was the devices already out there</a>
+  </nav>
+  <!-- /sync:nav -->
+  <footer>
+    <span>Nathan Cartmell &mdash; <a href="/">ncartmell.co.uk</a></span>
+    <span><a href="mailto:me@ncartmell.co.uk">me@ncartmell.co.uk</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

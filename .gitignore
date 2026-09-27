@@ -1,1 +1,4 @@
 .DS_Store
+
+# scratch file tools/og.py writes while rendering
+tools/.og-tmp.html
