@@ -152,8 +152,8 @@
     </p>
 
     <p>
-      The two actions available are re-running a stalled provisioning order and raising a ticket.
-      Everything else answers a question. That is not because support cannot be trusted; it is
+      At launch the only two actions were re-running a stalled provisioning order and raising a
+      ticket. Everything else answered a question. That is not because support cannot be trusted; it is
       that a launch-week tool built quickly is exactly the wrong place to put a write path into
       billing. Being able to see the state resolves most of the calls. Being able to change it
       adds a way to make things worse at the moment there is least time to notice.
@@ -163,6 +163,50 @@
       The re-run is the exception because it is safe by construction — the order is a sequence of
       recorded steps, so running it again skips what already happened. An action that is
       idempotent is a very different proposition from one that is not.
+    </p>
+
+    <h2>Seeing what the customer sees</h2>
+
+    <p>
+      The thing that closed the last gap arrived around launch: letting an agent open the
+      customer's own account and look at the screens the customer is looking at.
+    </p>
+
+    <p>
+      Descriptions over the phone only go so far. Someone saying their calls are not forwarding,
+      and an agent reading a row in a database, are describing the same account in two different
+      languages. The gap between those two descriptions is where the call time goes.
+    </p>
+
+    <p>
+      It is more awkward than it sounds, for reasons that have nothing to do with the feature.
+      The internal portal and the customer's dashboard are different origins. A server-to-server
+      call from one to the other cannot sign the agent in: the session cookie would be set on the
+      portal's own response rather than in the agent's browser, and a cookie scoped to one host
+      cannot be written for another anyway.
+    </p>
+
+    <p>
+      So it goes through the browser instead, in two hops. The portal asks the customer
+      application, server to server, for a one-time ticket standing in for a session. It gets back
+      an identifier and nothing else — no cookie on that response, deliberately. It then
+      redirects the agent to a URL on the customer host, which spends the ticket, sets the cookie
+      for the host the browser actually visited, and lands them on the dashboard.
+    </p>
+
+    <p>
+      Two things made that cheap. The redeeming half already existed for a different cross-domain
+      sign-in, so only the minting of the ticket is new. And the ticket is single-use with a life
+      measured in seconds, which is most of what stands between "support can help" and "an
+      identifier in a log is an account".
+    </p>
+
+    <p>
+      The part worth saying plainly: an endpoint whose job is to create a session has no session
+      of its own to authenticate against. It cannot inherit the protection everything around it
+      gets for free, so its constraints have to be deliberate and written down. That is a
+      different security posture from the rest of the tooling, and it earned more scrutiny than
+      an internal convenience would normally get.
     </p>
 
     <h2>The part that is not software</h2>
@@ -203,6 +247,12 @@
       <strong>Read-only answers most of it.</strong> Visibility resolves the majority of calls
       without adding a way to make things worse. Add write paths deliberately, starting with the
       ones that are safe to repeat.
+    </p>
+
+    <p>
+      <strong>A session-minting endpoint is its own security boundary.</strong> It cannot inherit
+      authentication from the session it exists to create, so whatever constrains it has to be
+      explicit. Single use and a short life do more work than they look like they do.
     </p>
 
     <p>
