@@ -3,7 +3,11 @@
   <url><loc>https://ncartmell.co.uk/</loc><changefreq>monthly</changefreq><priority>1.0</priority></url>
   <url><loc>https://ncartmell.co.uk/projects/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://ncartmell.co.uk/outside/</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://ncartmell.co.uk/writing/</loc><lastmod>2026-09-17</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/</loc><lastmod>2026-09-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html</loc><lastmod>2026-09-27</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/let-stripe-own-the-money.html</loc><lastmod>2026-09-27</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html</loc><lastmod>2026-09-27</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html</loc><lastmod>2026-09-27</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html</loc><lastmod>2026-09-17</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html</loc><lastmod>2026-09-17</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
   <url><loc>https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html</loc><lastmod>2026-09-17</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>

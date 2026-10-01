@@ -13,11 +13,60 @@
   <rights>© 2026 Nathan Cartmell</rights>
 
   <entry>
+    <title>What you cut when the date is fixed</title>
+    <link href="https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html</id>
+    <published>2026-09-17T12:00:00+01:00</published>
+    <updated>2026-09-17T12:00:00+01:00</updated>
+    <category term="Launching a new brand"/>
+    <category term="Product"/>
+    <category term="Releases"/>
+    <summary>Joining a product launch two weeks out with the date immovable. Most of the work was deciding what not to build, and being right about it.</summary>
+  </entry>
+
+  <entry>
+    <title>Letting the payment provider own the money</title>
+    <link href="https://ncartmell.co.uk/writing/let-stripe-own-the-money.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/let-stripe-own-the-money.html</id>
+    <published>2026-09-17T11:59:00+01:00</published>
+    <updated>2026-09-17T11:59:00+01:00</updated>
+    <category term="Launching a new brand"/>
+    <category term="Product"/>
+    <category term="Billing"/>
+    <category term="API design"/>
+    <summary>Stripe owns pricing, subscriptions and cancellations; our service listens. What that buys, and the one thing it means you can never assume.</summary>
+  </entry>
+
+  <entry>
+    <title>An order that can be run again</title>
+    <link href="https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html</id>
+    <published>2026-09-17T11:58:00+01:00</published>
+    <updated>2026-09-17T11:58:00+01:00</updated>
+    <category term="Launching a new brand"/>
+    <category term="Provisioning"/>
+    <category term="Distributed systems"/>
+    <summary>One button buys a phone number. Behind it is a sequence of steps against systems that occasionally fail, and the only useful design question is what happens then.</summary>
+  </entry>
+
+  <entry>
+    <title>Support needs it on day one</title>
+    <link href="https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html" rel="alternate" type="text/html"/>
+    <id>https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html</id>
+    <published>2026-09-17T11:57:00+01:00</published>
+    <updated>2026-09-17T11:57:00+01:00</updated>
+    <category term="Launching a new brand"/>
+    <category term="Internal tools"/>
+    <category term="Product"/>
+    <summary>Nobody had specified what support would need to answer for a new product. Low traffic is not the same as low stakes: one customer nobody can help is still a bad day.</summary>
+  </entry>
+
+  <entry>
     <title>The hard part was the devices already out there</title>
     <link href="https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/the-estate-is-the-hard-part.html</id>
-    <published>2026-09-17T12:00:00+01:00</published>
-    <updated>2026-09-17T12:00:00+01:00</updated>
+    <published>2026-09-17T11:56:00+01:00</published>
+    <updated>2026-09-17T11:56:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Provisioning"/>
     <category term="Migration"/>
@@ -29,8 +78,8 @@
     <title>The whitespace was load-bearing</title>
     <link href="https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/whitespace-was-load-bearing.html</id>
-    <published>2026-09-17T11:59:00+01:00</published>
-    <updated>2026-09-17T11:59:00+01:00</updated>
+    <published>2026-09-17T11:55:00+01:00</published>
+    <updated>2026-09-17T11:55:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="XML"/>
     <category term="Provisioning"/>
@@ -42,8 +91,8 @@
     <title>Nonces don't fit in one process</title>
     <link href="https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/nonces-dont-fit-in-one-process.html</id>
-    <published>2026-09-17T11:58:00+01:00</published>
-    <updated>2026-09-17T11:58:00+01:00</updated>
+    <published>2026-09-17T11:54:00+01:00</published>
+    <updated>2026-09-17T11:54:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Authentication"/>
     <category term="Distributed systems"/>
@@ -54,8 +103,8 @@
     <title>Six vendors, one API</title>
     <link href="https://ncartmell.co.uk/writing/six-vendors-one-api.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/six-vendors-one-api.html</id>
-    <published>2026-09-17T11:57:00+01:00</published>
-    <updated>2026-09-17T11:57:00+01:00</updated>
+    <published>2026-09-17T11:53:00+01:00</published>
+    <updated>2026-09-17T11:53:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Provisioning"/>
     <category term="API design"/>
@@ -67,8 +116,8 @@
     <title>Cheaper for the server, dearer for the phone</title>
     <link href="https://ncartmell.co.uk/writing/cheaper-for-the-server.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/cheaper-for-the-server.html</id>
-    <published>2026-09-17T11:56:00+01:00</published>
-    <updated>2026-09-17T11:56:00+01:00</updated>
+    <published>2026-09-17T11:52:00+01:00</published>
+    <updated>2026-09-17T11:52:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Provisioning"/>
     <category term="Performance"/>
@@ -80,8 +129,8 @@
     <title>Everyone checks in at once</title>
     <link href="https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/everyone-checks-in-at-once.html</id>
-    <published>2026-09-17T11:55:00+01:00</published>
-    <updated>2026-09-17T11:55:00+01:00</updated>
+    <published>2026-09-17T11:51:00+01:00</published>
+    <updated>2026-09-17T11:51:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Provisioning"/>
     <category term="Distributed systems"/>
@@ -93,8 +142,8 @@
     <title>Writing to both</title>
     <link href="https://ncartmell.co.uk/writing/writing-to-both.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/writing-to-both.html</id>
-    <published>2026-09-17T11:54:00+01:00</published>
-    <updated>2026-09-17T11:54:00+01:00</updated>
+    <published>2026-09-17T11:50:00+01:00</published>
+    <updated>2026-09-17T11:50:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Migration"/>
     <category term="Data modelling"/>
@@ -106,8 +155,8 @@
     <title>Expected failures are not errors</title>
     <link href="https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/expected-failures-are-not-errors.html</id>
-    <published>2026-09-17T11:53:00+01:00</published>
-    <updated>2026-09-17T11:53:00+01:00</updated>
+    <published>2026-09-17T11:49:00+01:00</published>
+    <updated>2026-09-17T11:49:00+01:00</updated>
     <category term="The platform migration"/>
     <category term="Observability"/>
     <category term="Migration"/>
@@ -118,8 +167,8 @@
     <title>The address that has to be right</title>
     <link href="https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/the-address-that-has-to-be-right.html</id>
-    <published>2026-09-17T11:52:00+01:00</published>
-    <updated>2026-09-17T11:52:00+01:00</updated>
+    <published>2026-09-17T11:48:00+01:00</published>
+    <updated>2026-09-17T11:48:00+01:00</updated>
     <category term="Regulated telecoms"/>
     <category term="Emergency routing"/>
     <category term="Data modelling"/>
@@ -131,8 +180,8 @@
     <title>Porting a number</title>
     <link href="https://ncartmell.co.uk/writing/porting-a-number.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/porting-a-number.html</id>
-    <published>2026-09-17T11:51:00+01:00</published>
-    <updated>2026-09-17T11:51:00+01:00</updated>
+    <published>2026-09-17T11:47:00+01:00</published>
+    <updated>2026-09-17T11:47:00+01:00</updated>
     <category term="Regulated telecoms"/>
     <category term="Number porting"/>
     <category term="Regulation"/>
@@ -144,8 +193,8 @@
     <title>Someone else's phone bill</title>
     <link href="https://ncartmell.co.uk/writing/someone-elses-phone-bill.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/someone-elses-phone-bill.html</id>
-    <published>2026-09-17T11:50:00+01:00</published>
-    <updated>2026-09-17T11:50:00+01:00</updated>
+    <published>2026-09-17T11:46:00+01:00</published>
+    <updated>2026-09-17T11:46:00+01:00</updated>
     <category term="Regulated telecoms"/>
     <category term="Fraud"/>
     <category term="Regulation"/>
@@ -156,8 +205,8 @@
     <title>The socket is not the call</title>
     <link href="https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/the-socket-is-not-the-call.html</id>
-    <published>2026-09-17T11:49:00+01:00</published>
-    <updated>2026-09-17T11:49:00+01:00</updated>
+    <published>2026-09-17T11:45:00+01:00</published>
+    <updated>2026-09-17T11:45:00+01:00</updated>
     <category term="Mobile clients"/>
     <category term="Real-time"/>
     <category term="Mobile"/>
@@ -168,8 +217,8 @@
     <title>Presence is not a boolean</title>
     <link href="https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/presence-is-not-a-boolean.html</id>
-    <published>2026-09-17T11:48:00+01:00</published>
-    <updated>2026-09-17T11:48:00+01:00</updated>
+    <published>2026-09-17T11:44:00+01:00</published>
+    <updated>2026-09-17T11:44:00+01:00</updated>
     <category term="Mobile clients"/>
     <category term="Real-time"/>
     <category term="Mobile"/>
@@ -181,8 +230,8 @@
     <title>The rewrite that was never a project</title>
     <link href="https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/the-rewrite-that-was-never-a-project.html</id>
-    <published>2026-09-17T11:47:00+01:00</published>
-    <updated>2026-09-17T11:47:00+01:00</updated>
+    <published>2026-09-17T11:43:00+01:00</published>
+    <updated>2026-09-17T11:43:00+01:00</updated>
     <category term="Mobile clients"/>
     <category term="Mobile"/>
     <category term="Migration"/>
@@ -193,8 +242,8 @@
     <title>The store is part of the system</title>
     <link href="https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/the-store-is-part-of-the-system.html</id>
-    <published>2026-09-17T11:46:00+01:00</published>
-    <updated>2026-09-17T11:46:00+01:00</updated>
+    <published>2026-09-17T11:42:00+01:00</published>
+    <updated>2026-09-17T11:42:00+01:00</updated>
     <category term="Mobile clients"/>
     <category term="Mobile"/>
     <category term="Releases"/>
@@ -205,8 +254,8 @@
     <title>The tool your colleagues live in</title>
     <link href="https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/the-tool-your-colleagues-live-in.html</id>
-    <published>2026-09-17T11:45:00+01:00</published>
-    <updated>2026-09-17T11:45:00+01:00</updated>
+    <published>2026-09-17T11:41:00+01:00</published>
+    <updated>2026-09-17T11:41:00+01:00</updated>
     <category term="Platform and internal tools"/>
     <category term="Internal tools"/>
     <category term="Product"/>
@@ -217,8 +266,8 @@
     <title>One person, several accounts</title>
     <link href="https://ncartmell.co.uk/writing/one-person-several-accounts.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/one-person-several-accounts.html</id>
-    <published>2026-09-17T11:44:00+01:00</published>
-    <updated>2026-09-17T11:44:00+01:00</updated>
+    <published>2026-09-17T11:40:00+01:00</published>
+    <updated>2026-09-17T11:40:00+01:00</updated>
     <category term="Platform and internal tools"/>
     <category term="Authentication"/>
     <category term="Data modelling"/>
@@ -229,8 +278,8 @@
     <title>Hiding a button is not a permission</title>
     <link href="https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/hiding-a-button-is-not-a-permission.html</id>
-    <published>2026-09-17T11:43:00+01:00</published>
-    <updated>2026-09-17T11:43:00+01:00</updated>
+    <published>2026-09-17T11:39:00+01:00</published>
+    <updated>2026-09-17T11:39:00+01:00</updated>
     <category term="Platform and internal tools"/>
     <category term="Authorisation"/>
     <category term="Internal tools"/>
@@ -241,8 +290,8 @@
     <title>Reports are a scheduling problem</title>
     <link href="https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/reports-are-a-scheduling-problem.html</id>
-    <published>2026-09-17T11:42:00+01:00</published>
-    <updated>2026-09-17T11:42:00+01:00</updated>
+    <published>2026-09-17T11:38:00+01:00</published>
+    <updated>2026-09-17T11:38:00+01:00</updated>
     <category term="Platform and internal tools"/>
     <category term="Scheduling"/>
     <category term="Internal tools"/>
@@ -253,8 +302,8 @@
     <title>A catalogue is a query</title>
     <link href="https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/a-catalogue-is-a-query.html</id>
-    <published>2026-09-17T11:41:00+01:00</published>
-    <updated>2026-09-17T11:41:00+01:00</updated>
+    <published>2026-09-17T11:37:00+01:00</published>
+    <updated>2026-09-17T11:37:00+01:00</updated>
     <category term="Platform and internal tools"/>
     <category term="Data modelling"/>
     <category term="Product"/>
@@ -266,8 +315,8 @@
     <title>Decommissioning is the milestone</title>
     <link href="https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html" rel="alternate" type="text/html"/>
     <id>https://ncartmell.co.uk/writing/decommissioning-is-the-milestone.html</id>
-    <published>2026-09-17T11:40:00+01:00</published>
-    <updated>2026-09-17T11:40:00+01:00</updated>
+    <published>2026-09-17T11:36:00+01:00</published>
+    <updated>2026-09-17T11:36:00+01:00</updated>
     <category term="Platform and internal tools"/>
     <category term="Migration"/>
     <category term="Internal tools"/>

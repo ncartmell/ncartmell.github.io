@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What you cut when the date is fixed — Nathan Cartmell</title>
+<meta name="description" content="Joining a product launch two weeks out with the date immovable. Most of the work was deciding what not to build, and being right about it.">
+<meta name="topics" content="Product, Releases">
+<link rel="canonical" href="https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2316181d%22/%3E%3Ctext x=%2232%22 y=%2243%22 font-family=%22ui-monospace,monospace%22 font-size=%2230%22 font-weight=%22600%22 fill=%22%23fbfbfa%22 text-anchor=%22middle%22%3ENC%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="What you cut when the date is fixed">
+<meta property="og:description" content="Joining a product launch two weeks out. Most of the work was deciding what not to build.">
+<meta property="og:url" content="https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- sync:head -->
+<meta property="og:image" content="https://ncartmell.co.uk/og/what-you-cut-when-the-date-is-fixed.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="What you cut when the date is fixed — ncartmell.co.uk">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="application/atom+xml" title="Nathan Cartmell — Writing" href="/feed.xml">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What you cut when the date is fixed",
+  "description": "Joining a product launch two weeks out with the date immovable. Most of the work was deciding what not to build, and being right about it.",
+  "datePublished": "2026-09-27",
+  "dateModified": "2026-09-27",
+  "url": "https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html",
+  "mainEntityOfPage": "https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html",
+  "image": "https://ncartmell.co.uk/og/what-you-cut-when-the-date-is-fixed.png",
+  "inLanguage": "en-GB",
+  "author": {
+    "@type": "Person",
+    "name": "Nathan Cartmell",
+    "url": "https://ncartmell.co.uk/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Nathan Cartmell"
+  },
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Nathan Cartmell — Writing",
+    "url": "https://ncartmell.co.uk/writing/"
+  }
+}
+</script>
+<!-- /sync:head -->
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="skip no-print" href="#main">Skip to content</a>
+
+  <nav class="subnav">
+    <span class="navgroup"><a href="../">&larr; ncartmell.co.uk</a> <span class="sep">/</span> <a href="./">Writing</a></span>
+    <a href="../projects/">Projects &rarr;</a>
+  </nav>
+
+  <main id="main">
+  <article>
+    <h1>What you cut when the date is fixed</h1>
+    <div class="posted"><time datetime="2026-09-27">27 September 2026</time></div>
+    <!-- sync:topics -->
+    <ul class="topics"><li class="chip">Product</li><li class="chip">Releases</li></ul>
+    <!-- /sync:topics -->
+
+    <p>
+      I was moved onto a product launch about two weeks before the date. The date
+      was not moving — it had been committed to outside engineering, which is the usual
+      reason a date does not move.
+    </p>
+
+    <p>
+      What existed at that point was less than the schedule implied. There was no working
+      payment integration. There was no onboarding flow around it, no customer dashboard, no
+      handling for any path where the customer does something other than the ideal thing, and
+      nothing at all for the support team who would have to answer for it.
+    </p>
+
+    <p>
+      So the interesting work was not writing code. It was deciding, quickly and repeatedly,
+      what was going to exist on launch day and what was not.
+    </p>
+
+    <h2>Cutting the wrong things is easy</h2>
+
+    <p>
+      Re-scoping had already started when I arrived, and some of what was being dropped
+      should not have been.
+    </p>
+
+    <p>
+      The clearest example: the ability to pick a checkout session back up after abandoning
+      it. On paper that is a nice-to-have — the customer can always start again. In practice
+      it is what stops a dropped connection halfway through payment leaving somebody with an
+      account that exists, cannot be paid for, and cannot be re-created because the email
+      address is already taken. That is not a missing feature, it is a support ticket per
+      occurrence, and it costs about a day.
+    </p>
+
+    <p>
+      This is the failure mode of scope-cutting under pressure. The things that get cut are
+      the ones that are easiest to describe as optional, and "can the customer recover from
+      their own mistake" always sounds optional right up until the first customer makes one.
+      Cheap resilience work is disproportionately likely to be cut, because its value is
+      counterfactual and its cost is visible.
+    </p>
+
+    <p>
+      Some of that came down to confidence. Enough of the plan had slipped by then that there
+      was not much appetite for anything that sounded like an addition, whatever it cost. A
+      fair amount of what I put back went in on my own judgement, on the basis that it was a
+      day's work and I would rather explain it afterwards than argue about it beforehand. I
+      would do that again. It is only defensible when you are close enough to the work to
+      know the real cost, and you have to be right.
+    </p>
+
+    <h2>And some cuts were correct</h2>
+
+    <p>
+      Plenty of the original scope genuinely could not be built in the time, and a couple of
+      pieces should not have been built as designed at all.
+    </p>
+
+    <p>
+      Some of it needed changes far below the surface — behaviour the underlying platform
+      does not currently have, where the honest estimate is not "two weeks" but "a quarter,
+      and it touches other products". Those are easy calls once someone says them out loud.
+    </p>
+
+    <p>
+      One was a security problem rather than a scheduling one. The design had a one-time-code
+      sender reachable from the public site with nothing in front of it — no authentication,
+      no rate limit, no cooldown. Left as drawn, that is a way for anyone to send messages to
+      arbitrary numbers at our expense: a fraud surface and a per-message bill at the same
+      time.
+    </p>
+
+    <p>
+      The reflex is to harden it. Put a cooldown on resends, cap how many codes one address can
+      ask for, rate limit the endpoint. The better question was what the verification was
+      buying us, and the answer was not much — so it came out altogether rather than getting
+      a set of controls built around it.
+    </p>
+
+    <p>
+      Deleting a feature is a harder argument to make than securing one, because hardening
+      looks like diligence and removal looks like retreat. It is usually the cheaper answer.
+      Something that is gone needs no rate limit, no monitoring, no alert threshold and no
+      incident response, and it cannot be got wrong later by someone who does not know why the
+      controls are there.
+    </p>
+
+    <p>
+      The distinction worth holding onto is that these are different decisions wearing the
+      same clothes. "We cannot build this in time" and "this should not be built like this"
+      both come out as a line through a requirement, and it matters a great deal which one
+      you are making.
+    </p>
+
+    <h2>Not getting attached to anything</h2>
+
+    <p>
+      Requirements kept changing, right up to the end. That is what happens when a launch
+      gets close and people who have been thinking about it abstractly start seeing it work.
+    </p>
+
+    <p>
+      There was no time to defend against that with process. A scope freeze needs a meeting to
+      declare it, another to handle the first exception, and by then you have spent more of
+      the fortnight on the freeze than on the work. So the approach was the opposite: assume
+      the shape will change, and keep everything cheap to change.
+    </p>
+
+    <p>
+      In practice that meant not getting sentimental about a particular schema or a particular
+      sequence of steps. Build the working version, let it be reshaped, and resist the urge to
+      generalise early — a clever abstraction over a process that is about to change is worth
+      less than an obvious one you can rewrite in an hour.
+    </p>
+
+    <h2>Where the work happens</h2>
+
+    <p>
+      One correction came up repeatedly, in different disguises: something that belonged on
+      the backend had been implemented in front of it.
+    </p>
+
+    <p>
+      Order confirmation emails were the clearest case. They were being triggered from the
+      web layer, on the basis that the web layer is what the customer just interacted with.
+      But the customer interacting with a page is not the event you care about. The event is
+      the payment provider confirming a payment, which arrives as a webhook, to the service
+      that owns the order data. Trigger from the page and you send nothing when the customer
+      closes the tab at the wrong moment, and you send twice when they refresh.
+    </p>
+
+    <p>
+      Moving that kind of thing back is not architectural purity. It is that the front end
+      cannot tell you whether something actually happened — only that somebody was looking at
+      a page when it might have.
+    </p>
+
+    <h2>Build it so anyone could have</h2>
+
+    <p>
+      One constraint I kept deliberately, even though it cost time: wherever the new product
+      needed something the wider platform already does, it had to go through the same public
+      interfaces everybody else uses, rather than reaching inside.
+    </p>
+
+    <p>
+      Under deadline that is the expensive choice every single time. The shortcut — special-case
+      it, write directly to the table, add a flag that only this product reads — is always
+      faster on the day.
+    </p>
+
+    <p>
+      It is also how you end up with a product only its author can maintain. A launch is not
+      the end of the work, and the team that picks it up afterwards should not have to learn a
+      private set of rules that exist only here. Going through the front door meant a handful
+      of shortcuts were unavailable to me, and meant the result behaves like the rest of the
+      estate.
+    </p>
+
+    <h2>The part that was not engineering</h2>
+
+    <p>
+      A meaningful share of the fortnight was not spent writing anything.
+    </p>
+
+    <p>
+      There was a standup with the technical contributors every morning to work out what was
+      actually blocked as opposed to merely unfinished, a written update to stakeholders every
+      day, and a more or less continuous conversation with individuals throughout. The point of
+      the daily written update was less to inform than to force the question: what changed
+      since yesterday, and does the date still hold.
+    </p>
+
+    <p>
+      The other thing worth the time was making sure QA always had something to test. A build
+      that is three days stale is not a test environment, it is an argument generator — every
+      bug report has to be checked against whether it still exists. Keeping the turnaround
+      short meant the testing feedback was about the product rather than about the build.
+    </p>
+
+    <h2>What I took from it</h2>
+
+    <p>
+      <strong>Scope-cutting has a bias, and you have to correct for it.</strong> Cheap
+      resilience work is cut first because its benefit is invisible and its cost is not. Check
+      what has been dropped for things that are a day's work and save a class of support
+      ticket.
+    </p>
+
+    <p>
+      <strong>Separate "cannot build in time" from "should not build".</strong> They look
+      identical on a plan and they are completely different decisions. Conflating them means
+      you either ship something you should not have, or permanently lose something you could
+      have had later.
+    </p>
+
+    <p>
+      <strong>When change is certain, optimise for being cheap to change.</strong> Process that
+      tries to stop late change costs more than absorbing it, at this timescale. Do not
+      generalise a process that is still moving.
+    </p>
+
+    <p>
+      <strong>The deadline is the worst possible reason to skip the front door.</strong>
+      Everything you special-case to save a day becomes something the next person cannot
+      predict from how the rest of the system behaves.
+    </p>
+
+    <p>
+      <strong>Judgement calls need you close to the work.</strong> Putting things back without
+      asking is defensible when you know the real cost and you carry the consequence. It is not
+      a general licence, and it stops being defensible the moment you are guessing.
+    </p>
+
+  </article>
+  </main>
+
+  <!-- sync:nav -->
+  <nav class="postnav">
+    <a class="next" href="let-stripe-own-the-money.html"><span class="dir">Next</span>Letting the payment provider own the money</a>
+  </nav>
+  <!-- /sync:nav -->
+  <footer>
+    <span>Nathan Cartmell &mdash; <a href="/">ncartmell.co.uk</a></span>
+    <span><a href="mailto:me@ncartmell.co.uk">me@ncartmell.co.uk</a></span>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 API design
 Authentication
 Authorisation
+Billing
 Caching
 DNS
 Data modelling
