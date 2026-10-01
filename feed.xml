@@ -18,7 +18,7 @@
     <id>https://ncartmell.co.uk/writing/what-you-cut-when-the-date-is-fixed.html</id>
     <published>2026-09-17T12:00:00+01:00</published>
     <updated>2026-09-17T12:00:00+01:00</updated>
-    <category term="Launching a consumer brand"/>
+    <category term="Launching a new brand"/>
     <category term="Product"/>
     <category term="Releases"/>
     <summary>Joining a product launch two weeks out with the date immovable. Most of the work was deciding what not to build, and being right about it.</summary>
@@ -30,7 +30,7 @@
     <id>https://ncartmell.co.uk/writing/let-stripe-own-the-money.html</id>
     <published>2026-09-17T11:59:00+01:00</published>
     <updated>2026-09-17T11:59:00+01:00</updated>
-    <category term="Launching a consumer brand"/>
+    <category term="Launching a new brand"/>
     <category term="Product"/>
     <category term="Billing"/>
     <category term="API design"/>
@@ -43,7 +43,7 @@
     <id>https://ncartmell.co.uk/writing/an-order-that-can-be-run-again.html</id>
     <published>2026-09-17T11:58:00+01:00</published>
     <updated>2026-09-17T11:58:00+01:00</updated>
-    <category term="Launching a consumer brand"/>
+    <category term="Launching a new brand"/>
     <category term="Provisioning"/>
     <category term="Distributed systems"/>
     <summary>One button buys a phone number. Behind it is a sequence of steps against systems that occasionally fail, and the only useful design question is what happens then.</summary>
@@ -55,7 +55,7 @@
     <id>https://ncartmell.co.uk/writing/support-needs-it-on-day-one.html</id>
     <published>2026-09-17T11:57:00+01:00</published>
     <updated>2026-09-17T11:57:00+01:00</updated>
-    <category term="Launching a consumer brand"/>
+    <category term="Launching a new brand"/>
     <category term="Internal tools"/>
     <category term="Product"/>
     <summary>Nobody had specified what support would need to answer for a new product. Low traffic is not the same as low stakes: one customer nobody can help is still a bad day.</summary>
