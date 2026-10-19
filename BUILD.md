@@ -134,8 +134,6 @@ Keep the icons visually distinct at 15px. The first pass drew Magic as two offse
 and Reading as an open book, and at that size they were the same picture — two panels
 side by side. Magic is now a portrait card, which cannot be confused with a landscape
 book. Check any new icon against the others at actual size, not in isolation.
-Wildlife photos is the nearest call: a camera is another rounded rectangle, like Films.
-The raised viewfinder and the round lens are what tell them apart, so keep both.
 
 ## Wildlife photos
 
