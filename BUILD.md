@@ -134,6 +134,41 @@ Keep the icons visually distinct at 15px. The first pass drew Magic as two offse
 and Reading as an open book, and at that size they were the same picture — two panels
 side by side. Magic is now a portrait card, which cannot be confused with a landscape
 book. Check any new icon against the others at actual size, not in isolation.
+Wildlife photos is the nearest call: a camera is another rounded rectangle, like Films.
+The raised viewfinder and the round lens are what tell them apart, so keep both.
+
+## Wildlife photos
+
+The gallery at the foot of `/outside/` is written by `tools/wildlife.py`, not by hand:
+
+```sh
+python3 tools/wildlife.py ~/Pictures/fox.heic "Red fox" --latin "Vulpes vulpes" \
+  --place "Epping Forest" --inat 123456789 --alt "A red fox crossing a frosted field"
+python3 tools/wildlife.py --remove red-fox-2026-10-12
+```
+
+It writes `outside/wildlife/<slug>.jpg` (1600px on the long edge) and `<slug>-thumb.jpg`
+(640px), and rebuilds everything between the `<!-- wildlife:start -->` and
+`<!-- wildlife:end -->` markers, newest sighting first. Existing figures are carried over
+verbatim, so fix a caption by editing it in place. The empty state, `No photos yet.`, is
+the script's too. It disappears with the first photo and comes back if the last one is
+removed, so it is never stale.
+
+Every photo loses its metadata on the way through. A phone photo carries the GPS
+position it was taken at, which for a garden is a home address. The caption's place is
+only ever what `--place` says. The colour profile is kept, because dropping Display P3
+visibly flattens the colours. The date comes from EXIF, or `--date` when there is none,
+and the script refuses rather than guess. HEIC goes through `sips`.
+
+It needs Pillow, so, like `og.py`, it runs locally and not in CI. `check.py` covers what
+it leaves behind: anything in `outside/wildlife/` that is not a JPEG, is not shown on the
+page, still carries an EXIF/XMP segment, or is over budget (200KB for a thumbnail, 1.2MB
+for a photo) fails the build. Together those are the signature of a photo copied in by
+hand. Thumbnails are cropped to 4:3 in CSS, not in the file, and the full-size link is
+the uncropped original.
+
+`--alt` is optional, but use it. Without it the alt text is just the species name, which
+the caption already says.
 
 ## Open Graph cards
 

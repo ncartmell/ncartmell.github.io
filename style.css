@@ -304,3 +304,25 @@ figcaption{font-size:.84rem; color:var(--faint); margin-top:.5rem}
 .group .count{font-weight:400; letter-spacing:.06em; white-space:nowrap}
 .group-name{display:flex; align-items:center; gap:.5rem; min-width:0}
 .group-icon{flex:0 0 auto; width:15px; height:15px; opacity:.85}
+
+/* ---------- wildlife photos (outside) ----------
+   Thumbnails are cropped to one shape so the grid stays a grid. The photo itself,
+   uncropped, is one click away — which is also the whole of the lightbox, because a
+   plain link to the image needs no JavaScript. */
+.gallery{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1.5rem 1rem}
+.gallery figure{margin:0; min-width:0}
+.gallery figure > a{display:block; border:0}
+.gallery img{
+  display:block; aspect-ratio:4/3; object-fit:cover; background:var(--chip-bg);
+}
+.gallery figcaption{margin-top:.55rem; font-size:.9rem; line-height:1.4; color:var(--fg)}
+.gallery .species{display:block; font-weight:560}
+.gallery .latin{display:block; color:var(--muted)}
+.gallery .seen{
+  display:block; margin-top:.25rem;
+  font-family:var(--mono); font-size:.72rem; color:var(--faint);
+}
+section > .empty{margin-top:0}
+@media (max-width:480px){
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.2rem .8rem}
+}

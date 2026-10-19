@@ -163,9 +163,52 @@ def check_xml():
             fail(f"{name} does not parse: {e}")
 
 
+def jpeg_has_app1(data):
+    """True if the JPEG carries an APP1 segment — EXIF or XMP, either of which can hold
+    a GPS position. Pillow writes none unless asked, so wildlife.py output has none."""
+    i = 2
+    while i + 4 <= len(data) and data[i] == 0xFF:
+        marker = data[i + 1]
+        if marker == 0xE1:
+            return True
+        if marker in (0xDA, 0xD9):  # start of scan: the headers are over
+            return False
+        i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
+    return False
+
+
+def check_wildlife():
+    """Wildlife photos are meant to go through tools/wildlife.py, which resizes them and
+    strips the metadata. One copied in by hand would ship at camera size with the GPS
+    position it was taken at, and nothing else would notice. Also catch files the page
+    no longer shows, and images that would make the grid jump as they load."""
+    folder = ROOT / "outside/wildlife"
+    page = (ROOT / "outside/index.html").read_text()
+    shown = set(re.findall(r'(?:href|src)="wildlife/([^"]+)"', page))
+    for f in sorted(folder.iterdir()) if folder.is_dir() else []:
+        name = f"outside/wildlife/{f.name}"
+        if f.name.startswith("."):  # .DS_Store, the moment Finder opens the folder
+            continue
+        if f.suffix != ".jpg":
+            fail(f"not a wildlife.py JPEG: {name}")
+            continue
+        if f.name not in shown:
+            fail(f"wildlife photo not shown on the page: {name}")
+        data = f.read_bytes()
+        if jpeg_has_app1(data):
+            fail(f"wildlife photo still carries EXIF/XMP (location?): {name}")
+        budget = 200 if f.stem.endswith("-thumb") else 1200
+        if len(data) > budget * 1024:
+            fail(f"wildlife photo over {budget}KB, so not resized: {name}")
+    for tag in re.findall(r'<img [^>]*src="wildlife/[^>]*>', page):
+        for attr in ("width", "height", "alt"):
+            if not re.search(rf'\s{attr}="[^"]+"', tag):
+                fail(f"wildlife <img> has no {attr}: {tag[:80]}")
+
+
 for fn in (check_links, check_posts_listed, check_json_ld, check_landmarks,
            check_og_cards, check_feed_categories, check_topics,
-           check_cv_stamp, check_seealso_titles, check_xml):
+           check_cv_stamp, check_seealso_titles, check_xml, check_wildlife):
     fn()
 
 if fails:
